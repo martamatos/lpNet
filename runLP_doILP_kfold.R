@@ -27,6 +27,7 @@ runLP_doILP_kfold = function(function_, lambda2_, kfold, geneState_, sd_all, tot
 			
 			b = b_
 			geneState = geneState_
+			
 			obs_all <-  vector()
 
 			for(repl in 1:replnum)
@@ -46,8 +47,8 @@ runLP_doILP_kfold = function(function_, lambda2_, kfold, geneState_, sd_all, tot
 			print(geneState)
 
 			# run nonIterative model
-			ret <- doIt_kfold(function_=doILP,kfold,loocv_times,obs,n,b,K,delta,lambda=lamd,annot,annot_node,T_,previousNet,baseline,previousBaseline,prior=NULL,startNode=NULL,endNode=NULL,allint=FALSE,active_mu,active_sd,inactive_mu,inactive_sd)
-
+			ret <- doIt_kfold(function_=doILP,kfold=kfold,loocv_times=loocv_times,obs=obs,n=n,b=b,K=K,delta=delta,lambda=lamd,lambda2=lambda2,annot=annot,annot_node=annot_node,T_=T_,previousNet=previousNet,baseline=baseline,previousBaseline=previousBaseline,prior=NULL,startNode=NULL,endNode=NULL,allint=FALSE,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd)
+			 
 			
 #				print("ret$edges_all")
 #				print(ret$edges_all)

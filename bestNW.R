@@ -17,7 +17,7 @@ bestNW = function(n, nw_all, baselines_all, std, aucROC, aucROC_noNA, aucPR, i, 
 		write.matrix(baseline_final, file = sprintf("%s/baseline_t=%s_std=%s",outputDir,i, std))
 		
 		
-		system(sprintf('python net5.py  printGraph_%s %s/adj_t=%s_std=%s %s/std%s/graph%s_%s',graphSize_, outputDir,i,std, outputDir,std,i,std), intern=TRUE)
+		system(sprintf('python net%s.py  printGraph_%s %s/adj_t=%s_std=%s %s/std%s/graph%s_%s',n,graphSize_, outputDir,i,std, outputDir,std,i,std), intern=TRUE)
 		
 		print(paste("max auc (zero): ", 0 , sep=""))
 		print(nw_final)
@@ -53,7 +53,7 @@ bestNW = function(n, nw_all, baselines_all, std, aucROC, aucROC_noNA, aucPR, i, 
 		write.matrix(baseline_final, file = sprintf("%s/baseline_t=%s_std=%s",outputDir,i, std))
 		
 		
-		system(sprintf('python net5.py  printGraph_%s %s/adj_t=%s_std=%s %s/std%s/graph%s_%s', graphSize_, outputDir,i,std, outputDir,std,i,std), intern=TRUE)
+		system(sprintf('python net%s.py  printGraph_%s %s/adj_t=%s_std=%s %s/std%s/graph%s_%s', n,graphSize_, outputDir,i,std, outputDir,std,i,std), intern=TRUE)
 		
 		print(paste("max auc: ",max(aucROC_noNA,na.rm = TRUE), sep=""))
 		print(nw_final)
@@ -88,7 +88,7 @@ bestNW_dyn = function(n, obs, delta, nw_all, baselines_all, std, aucROC, aucROC_
 		write.matrix(baseline_final, file = sprintf("%s/baseline_t=%s_k=%s_std=%s",outputDir,t,k,std))
 		
 		
-		system(sprintf('python net5.py  printGraph_%s %s/adj_t=%s_k=%s_std=%s %s/k%s/std%s/graph%s_k%s_std%s',graphSize_, outputDir,t,k,std, outputDir,k,std,t,k,std), intern=TRUE)
+		system(sprintf('python net%s.py  printGraph_%s %s/adj_t=%s_k=%s_std=%s %s/k%s/std%s/graph%s_k%s_std%s',n,graphSize_, outputDir,t,k,std, outputDir,k,std,t,k,std), intern=TRUE)
 		
 		print(paste("max auc (zero): ", 0 , sep=""))
 		print(nw_final)
@@ -138,7 +138,7 @@ bestNW_dyn = function(n, obs, delta, nw_all, baselines_all, std, aucROC, aucROC_
 		write.matrix(baseline_final, file = sprintf("%s/baseline_t=%s_k=%s_std=%s",outputDir,t,k,std))
 		
 		
-		system(sprintf('python net5.py  printGraph_%s %s/adj_t=%s_k=%s_std=%s %s/k%s/std%s/graph%s_k%s_std%s',graphSize_, outputDir,t,k,std, outputDir,k,std,t,k,std), intern=TRUE)
+		system(sprintf('python net%s.py  printGraph_%s %s/adj_t=%s_k=%s_std=%s %s/k%s/std%s/graph%s_k%s_std%s',n,graphSize_, outputDir,t,k,std, outputDir,k,std,t,k,std), intern=TRUE)
 		
 		print(paste("max auc: ",max(aucROC_noNA,na.rm = TRUE), sep=""))
 		print(nw_final)

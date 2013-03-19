@@ -44,7 +44,7 @@ printAUC_und = function(auc,sd_all,randROC,randPR,totalruns, t, ouputDir)
 #		print(randROC)
 		auc2 = vector()
 		auc2 = rbind(auc2, auc)
-		auc2 = rbind(auc2, c(mean(randROC),sd(randROC),mean(randPR),sd(randPR)))
+		auc2 = rbind(auc2, c(mean(randROC),mean(randPR),sd(randROC),sd(randPR)))
 		
 #		print("auc2 mean")
 #		print(auc2)
