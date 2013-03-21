@@ -41,19 +41,21 @@ printAUC_median = function(auc,sd_all,randROC,totalruns, t, ouputDir)
 
 printAUC_median_und = function(auc,sd_all,randROC,randPR,totalruns, t, ouputDir)
 {
-		auc2 = vector()
-		auc2 = rbind(auc2, auc)
-		auc2 = rbind(auc2, c(quantile(randROC),quantile(randPR)))
-#		print("auc2 median")
-#		print(auc2)
+		auc2 = sd_all
+		auc2 = cbind(auc2, auc)
+		auc2 = rbind(auc2, c(0,quantile(randROC),quantile(randPR)))
+		
+		
+		print("auc2 median")
+		print(auc2)
 #		auc2 = rbind(auc2, c(randROC[[2]],NA,NA,NA,NA,NA,NA,NA,NA,NA))
 
-		colnames(auc2) <- c("quant1 AUC-ROC","quant2 AUC-ROC","quant3 AUC-ROC","quant4 AUC-ROC","quant5 AUC-ROC",
-												"quant1 AUC-PR","quant2 AUC-PR","quant3 AUC-PR","quant4 AUC-PR","quant5 AUC-PR")
-		rownames(auc2) = c(sd_all, "AUC-ROC_rand")
+#		colnames(auc2) <- c("quant1 AUC-ROC","quant2 AUC-ROC","quant3 AUC-ROC","quant4 AUC-ROC","quant5 AUC-ROC",
+#												"quant1 AUC-PR","quant2 AUC-PR","quant3 AUC-PR","quant4 AUC-PR","quant5 AUC-PR")
+#		rownames(auc2) = c(sd_all, "AUC-ROC_rand")
 		
 #		print(auc2)
-		write.table(auc2,sprintf('%s/auc_und_median.txt', ouputDir),quote=FALSE,row.names=F)
+		write.table(auc2,sprintf('%s/auc_und_median.txt', ouputDir),quote=FALSE,row.names=F,col.names=F)
 	
 
 #		postscript(sprintf('%s/aucROC_t=%s.eps', ouputDir,t),horizontal=T)

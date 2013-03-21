@@ -13,7 +13,7 @@ getSampleAdjaMAD <- function(edges_all,numnodes,annot_node,method=median,method2
   edge_mad <- apply(edges_all2,2,method2,na.rm=T)
   
   sample <- matrix(0,nrow=numnodes,ncol=numnodes)
-  colnames(sample) <- rownames(sample) <- annot_node
+  colnames(sample) <- rownames(sample) <- seq(1,numnodes)
   edgelist <- strsplit(colnames(edges_all),septype,fixed=T)
 	
 #	print("edge_med")

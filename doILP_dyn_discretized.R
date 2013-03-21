@@ -186,7 +186,7 @@ function(obs,delta,lambda,lambda2,b,n,K,T_,annot,previousNet=NULL,baseline=NULL,
   }
  
  
-#	print("W on LP_dyn")
+#	print("W on LP_dyn_discr")
 #	print(W)
 #	print("cvec")
 #	print(cvec)

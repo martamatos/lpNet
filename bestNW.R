@@ -1,4 +1,4 @@
-options(digits=2) # so that results are printed only with 2 decimal places
+#options(digits=2) # so that results are printed only with 2 decimal places
 
 bestNW = function(n, nw_all, baselines_all, std, aucROC, aucROC_noNA, aucPR, i, graphSize_, outputDir, function_)
 {

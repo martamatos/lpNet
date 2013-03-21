@@ -179,10 +179,10 @@ function(function_,lambda2_,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,
 			ids_rem <- which(is.na(obs_modified))
 			sq_err_tmp <- c(sq_err_tmp,((predict[ids_rem]-obs[ids_rem])^2))
 		}
-		print("end of kfold")
-		print(k)
-		print(edges_all)
-		print(dim(edges_all))
+#		print("end of kfold")
+#		print(k)
+#		print(edges_all)
+#		print(dim(edges_all))
 		sq_err_all <- rbind(sq_err_all,sq_err_tmp)
   } # end times
   sq_err <- apply(sq_err_all,2,mean,na.rm=T)
