@@ -58,6 +58,7 @@ function(function_,lambda2_,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,
 			obs_modified <- train_data
 		
 			## do ILP
+			
 			res <- function_(obs_modified,delta,lambda=lambda,lambda2_,b,n,K,T_,annot,previousNet,baseline_,previousBaseline,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos)
 		
 			adja <- getAdja(res,n)
@@ -164,6 +165,8 @@ function(function_,lambda2_,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,
 #			print(obs)
 			
 			## do ILP
+			print("obs_modified")
+			print(obs_modified)
 			res <- function_(obs_modified,delta,lambda=lambda,lambda2_,b,n,K,T_,annot,previousNet,baseline_,previousBaseline,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos)
 			
 			adja <- getAdja(res,n)

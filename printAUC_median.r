@@ -46,8 +46,8 @@ printAUC_median_und = function(auc,sd_all,randROC,randPR,totalruns, t, ouputDir)
 		auc2 = rbind(auc2, c(0,quantile(randROC),quantile(randPR)))
 		
 		
-		print("auc2 median")
-		print(auc2)
+#		print("auc2 median")
+#		print(auc2)
 #		auc2 = rbind(auc2, c(randROC[[2]],NA,NA,NA,NA,NA,NA,NA,NA,NA))
 
 #		colnames(auc2) <- c("quant1 AUC-ROC","quant2 AUC-ROC","quant3 AUC-ROC","quant4 AUC-ROC","quant5 AUC-ROC",

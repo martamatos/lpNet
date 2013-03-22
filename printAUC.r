@@ -44,19 +44,21 @@ printAUC_und = function(auc,sd_all,randROC,randPR,totalruns, t, ouputDir)
 #		print(randROC)
 		auc2 = sd_all
 		auc2 =  cbind(auc2, auc)
-		auc_rand = c(0, mean(randROC),mean(randPR),sd(randROC),sd(randPR))
+		
+		auc_rand = sd_all
+		auc_rand = cbind(auc_rand, mean(randROC),mean(randPR),sd(randROC),sd(randPR))
 		
 		
-		print("auc2 mean")
-		print(auc2)
+#		print("auc2 mean")
+#		print(auc2)
 		
 
 
-		colnames(auc2) <- c("std","mean AUC-ROC","mean AUC-PR","sd AUC-ROC","sd AUC-PR")
-		rownames(auc2) = c(sd_all)
+#		colnames(auc2) <- c("std","mean AUC-ROC","mean AUC-PR","sd AUC-ROC","sd AUC-PR")
+#		rownames(auc2) = c(sd_all)
 		
 ##		print(auc2)
-		print(getwd())
+#		print(getwd())
 		write.table(auc2,sprintf('%s/auc_und.txt', ouputDir),quote=FALSE,row.names=F,col.names=F)
 		write.table(t(auc_rand),sprintf('%s/auc_und_randROC.txt', ouputDir),quote=FALSE,row.names=F,col.names=F)
 	

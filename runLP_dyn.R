@@ -13,7 +13,9 @@ runLP_dyn = function(function_, lambda2_, geneState_, sd_all, totalruns, loocv_t
 	auc_list_median  = matrix(c(NA), nrow=length(sd_all), ncol=10)
 	randROC_list = vector()
 	randPR_list = vector()
-
+	
+	
+	
 	for (k in 1:K){
 		system(sprintf('mkdir %s/k%s', outputDir,k))
 	}
@@ -27,6 +29,8 @@ runLP_dyn = function(function_, lambda2_, geneState_, sd_all, totalruns, loocv_t
 	for(std in sd_all)
 	{
 		baselines_all <- nw_all <- aucROC <- aucPR <- aucROC_noNA <- nw_size <- vector()
+		
+		edges = list()
 		
 		for(i in 1:totalruns)
 		{
@@ -61,7 +65,7 @@ runLP_dyn = function(function_, lambda2_, geneState_, sd_all, totalruns, loocv_t
 			
 #				print("ret$edges_all")
 #				print(ret$edges_all)
-			
+			edges[[i]] = ret$edges_all
 			colnames(T_undNet) <- rownames(T_undNet) <- annot_node
 			randRoc = calcRandROC(T_undNet,100)
 			randROC_list <- c(randROC_list, randRoc[[1]])
@@ -88,6 +92,7 @@ runLP_dyn = function(function_, lambda2_, geneState_, sd_all, totalruns, loocv_t
 			
 		} # end of total_runs
 		
+		save(edges,file=sprintf("%s/edges_std%s", outputDir,std))
 		
 		# get the median/mean values for AUC-ROC AUC-PR
 		auc_list[sd_i,] <- c(mean(aucROC,na.rm=T),mean(aucPR,na.rm=T),sd(aucROC,na.rm=T),sd(aucPR,na.rm=T))

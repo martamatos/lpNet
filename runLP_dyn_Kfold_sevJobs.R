@@ -25,12 +25,14 @@ runLP_dyn_Kfold_sevJobs = function(function_, lambda2_, kfold, geneState_, sd_al
 	delta = list()
 
 	
+	
 	for(std in sd_all)
 	{
 		baselines_all[[sd_i]] <- nw_all[[sd_i]] <- aucROC[[sd_i]] <- aucPR[[sd_i]] <- aucROC_noNA[[sd_i]] <- nw_size <- vector()
 		
 		randROC_list[[sd_i]] <- vector()
 		randPR_list[[sd_i]] <- vector()
+		edges = list()
 		
 		for(i in 1:totalruns)
 		{
@@ -63,7 +65,7 @@ runLP_dyn_Kfold_sevJobs = function(function_, lambda2_, kfold, geneState_, sd_al
 			# run nonIterative model
 			ret <- doIt_dyn_kfold(function_,kfold,loocv_times,obs[[sd_i]],n,b,K,delta[[sd_i]],lambda=lamd,lambda2_,annot,annot_node,T_,previousNet,baseline,previousBaseline,prior=NULL,startNode=NULL,endNode=NULL,allint=FALSE,active_mu,active_sd,inactive_mu,inactive_sd)
 
-			 
+			edges[[i]] = ret$edges_all
 			
 #				print("ret$edges_all")
 #				print(ret$edges_all)
@@ -93,6 +95,9 @@ runLP_dyn_Kfold_sevJobs = function(function_, lambda2_, kfold, geneState_, sd_al
 
 			
 		} # end of total_runs
+		
+		save(edges,file=sprintf("%s/edges_std%s", outputDir,std))
+		
 		sd_i = sd_i + 1
 	} # end of sd_all
 	
