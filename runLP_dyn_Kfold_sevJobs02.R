@@ -1,4 +1,4 @@
-runLP_dyn_Kfold_sevJobs = function(function_, lambda2_, kfold, geneState_, sd_all, totalruns, loocv_times, replnum, b_, n, K, T_, T_nw_,T_undNet, annot, annot_node, active_mu, inactive_mu, active_sd, inactive_sd, graphSize_,outputDir)
+runLP_dyn_Kfold_sevJobs02 = function(function_, lambda2_, kfold, geneState_, sd_all, totalruns, loocv_times, replnum, b_, n, K, T_, T_nw_,T_undNet, annot, annot_node, active_mu, inactive_mu, active_sd, inactive_sd,graphSize_,outputDir)
 {
 
 #--------------------------------------------------------
@@ -63,7 +63,7 @@ runLP_dyn_Kfold_sevJobs = function(function_, lambda2_, kfold, geneState_, sd_al
 			print(geneState_)
 
 			# run nonIterative model
-			ret <- doIt_dyn_kfold(function_,kfold,loocv_times,obs[[sd_i]],n,b,K,delta[[sd_i]],lambda=lamd,lambda2_,annot,annot_node,T_,previousNet,baseline,previousBaseline,prior=NULL,startNode=NULL,endNode=NULL,allint=FALSE,active_mu,active_sd,inactive_mu,inactive_sd)
+			ret <- doIt_dyn_kfold005(function_,kfold,loocv_times,obs[[sd_i]],n,b,K,delta[[sd_i]],lambda=lamd,lambda2_,annot,annot_node,T_,previousNet,baseline,previousBaseline,prior=NULL,startNode=NULL,endNode=NULL,allint=FALSE,active_mu,active_sd,inactive_mu,inactive_sd)
 
 			edges[[i]] = ret$edges_all
 			

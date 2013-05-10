@@ -45,8 +45,13 @@ printAUC_und = function(auc,sd_all,randROC,randPR,totalruns, t, ouputDir)
 		auc2 = sd_all
 		auc2 =  cbind(auc2, auc)
 		
-		auc_rand = sd_all
-		auc_rand = cbind(auc_rand, mean(randROC),mean(randPR),sd(randROC),sd(randPR))
+#		auc_rand = vector()
+#		temp = c(mean(randROC),mean(randPR),sd(randROC),sd(randPR))
+		
+#		for (it in 1:length(sd_all)){
+#			auc_rand = rbind(auc_rand,c(sd_all[it], temp))
+#		}
+		
 		
 		
 #		print("auc2 mean")
@@ -60,7 +65,7 @@ printAUC_und = function(auc,sd_all,randROC,randPR,totalruns, t, ouputDir)
 ##		print(auc2)
 #		print(getwd())
 		write.table(auc2,sprintf('%s/auc_und.txt', ouputDir),quote=FALSE,row.names=F,col.names=F)
-		write.table(t(auc_rand),sprintf('%s/auc_und_randROC.txt', ouputDir),quote=FALSE,row.names=F,col.names=F)
+#		write.table(t(auc_rand),sprintf('%s/auc_und_randROC.txt', ouputDir),quote=FALSE,row.names=F,col.names=F)
 	
 
 #		postscript(sprintf('%s/aucROC_t=%s.eps', ouputDir,t),horizontal=T)

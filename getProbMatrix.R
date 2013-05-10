@@ -1,11 +1,6 @@
 getProbMatrix <- function(edges_all,numnodes,septype="->")
 {
-#	print("edges alL 1 ")
-#	print(edges_all)
 
-#	edges_all2 = getLOOCVActiveEdges(edges_all, numnodes)
-#	print("edges all2 ")
-#	print(edges_all2)
 	
 	nTotal = dim(edges_all)[1]
 	nCol = dim(edges_all)[2]
@@ -16,12 +11,7 @@ getProbMatrix <- function(edges_all,numnodes,septype="->")
 		pPos[j] = sum(edges_all[,j]==1)/nTotal
 		pNeg[j] = sum(edges_all[,j]==-1)/nTotal
 	}
-	
-#	print("bla1")
-#	print(pPos)
-#	print(pNeg)
-#	print(length(pPos))
-#	print(length(pNeg))
+
 
   sample <- matrix(0,nrow=numnodes,ncol=numnodes)
   colnames(sample) <- rownames(sample) <- seq(1,numnodes)
@@ -36,16 +26,14 @@ getProbMatrix <- function(edges_all,numnodes,septype="->")
 			if( pPos[i] > pNeg[i] ){
 				sample[id1,id2] <- pPos[i]
 			}
-			if( pPos[i] < pNeg[i] ){
+			else if( pPos[i] < pNeg[i] ){
 				sample[id1,id2] <- -pNeg[i]
 			}
 			else{
 				sample[id1,id2] <- 0
 			}
-			
   }
-#  print(sample)
-##  stop("A")
+
   return(sample)
 }
 

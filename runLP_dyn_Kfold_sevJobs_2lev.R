@@ -1,4 +1,4 @@
-runLP_dyn_Kfold_sevJobs = function(function_, lambda2_, kfold, geneState_, sd_all, totalruns, loocv_times, replnum, b_, n, K, T_, T_nw_,T_undNet, annot, annot_node, active_mu, inactive_mu, active_sd, inactive_sd, graphSize_,outputDir)
+runLP_dyn_Kfold_sevJobs_2lev = function(function_, lambda2_, kfold, geneState_, sd_all, totalruns, loocv_times, replnum, b_, n, K, T_, T_nw_,T_undNet, annot, annot_node, active_mu, inactive_mu, inactivePknock_mu, active_sd, inactive_sd, inactivePknock_sd, graphSize_,outputDir)
 {
 
 #--------------------------------------------------------
@@ -47,7 +47,7 @@ runLP_dyn_Kfold_sevJobs = function(function_, lambda2_, kfold, geneState_, sd_al
 
 				for(repl in 1:replnum)
 				{
-					obs_tmp <- getObsMat(act_mat,active_mu,std,inactive_mu,std,geneState)
+					obs_tmp <- getObsMat_2lev(act_mat,active_mu,std,inactive_mu,std,inactivePknock_mu,std,geneState)
 					obs_all <- rbind(obs_all,c(obs_tmp))
 					tmp <- cbind(tmp,rnorm(n,mean(c(active_mu,inactive_mu)),std))
 				}
@@ -63,7 +63,7 @@ runLP_dyn_Kfold_sevJobs = function(function_, lambda2_, kfold, geneState_, sd_al
 			print(geneState_)
 
 			# run nonIterative model
-			ret <- doIt_dyn_kfold(function_,kfold,loocv_times,obs[[sd_i]],n,b,K,delta[[sd_i]],lambda=lamd,lambda2_,annot,annot_node,T_,previousNet,baseline,previousBaseline,prior=NULL,startNode=NULL,endNode=NULL,allint=FALSE,active_mu,active_sd,inactive_mu,inactive_sd)
+			ret <- doIt_dyn_kfold_2lev(function_,kfold,loocv_times,obs[[sd_i]],n,b,K,delta[[sd_i]],lambda=lamd,lambda2_,annot,annot_node,T_,previousNet,baseline,previousBaseline,prior=NULL,startNode=NULL,endNode=NULL,allint=FALSE,active_mu,active_sd,inactive_mu,inactive_sd, inactivePknock_mu=inactivePknock_mu, inactivePknock_sd=inactivePknock_sd)
 
 			edges[[i]] = ret$edges_all
 			
@@ -71,9 +71,7 @@ runLP_dyn_Kfold_sevJobs = function(function_, lambda2_, kfold, geneState_, sd_al
 #				print(ret$edges_all)
 			
 			colnames(T_undNet) <- rownames(T_undNet) <- annot_node
-#			randRoc = calcRandROC(T_undNet,100)
-#			randROC_list[[sd_i]] <- c(randROC_list[[sd_i]], randRoc[[1]])
-#			randPR_list[[sd_i]] <- c(randPR_list[[sd_i]], randRoc[[2]])
+
 
 			## calculate Sensitivity and Specificity and ROC curve
 			loocv_roc <- calc_ROC(ret$edges_all,T_undNet,path="loocv_roc",triple=TRUE,plot=FALSE,t=t,std=std,outputDir=outputDir)

@@ -30,6 +30,77 @@ function(T_,adja,b,n,K,active_mu,active_sd,inactive_mu,inactive_sd){
 #	print(predict)
   return(predict)
 }
+calcPredictionKfoldCV_dyn_ddepn <-
+function(T_, adja,b,n,K,active_mu,active_sd,inactive_mu,inactive_sd){
+  # which genes are silenced in removed observation
+  
+#  print("calc act")
+#  print(adja)
+#  print(b)
+#  print(n)
+#  print(K)
+  act_mat <- calcActivation(adja,b,n,K)
+#  print("act_mat")
+#  print(act_mat)
+  predict = array(NA, c(n,K,T_))
+  for (t in 1:T_){
+#		print("adja[,,t]")
+#		print(adja[,,t])
+#		print(geneState[,,t])
+		
+		predict[,,t] <- getObsMat_ddepn(act_mat,active_mu,active_sd,inactive_mu,inactive_sd)
+	}
+#	print("predict")
+#	print(predict)
+  return(predict)
+}
+
+calcPredictionKfoldCV_dyn_sahin03 <-
+function(T_, adja,b,n,K,active_mu,active_sd,inactive_mu,inactive_sd){
+  # which genes are silenced in removed observation
+  
+#  print("calc act")
+#  print(adja)
+#  print(b)
+#  print(n)
+#  print(K)
+  act_mat <- calcActivation(adja,b,n,K)
+#  print("act_mat")
+#  print(act_mat)
+  predict = array(NA, c(n,K,T_))
+  for (t in 1:T_){
+#		print("adja[,,t]")
+#		print(adja[,,t])
+#		print(geneState[,,t])
+		
+		predict[,,t] <- getObsMat_sahin03(act_mat,active_mu,active_sd,inactive_mu,inactive_sd)
+	}
+#	print("predict")
+#	print(predict)
+  return(predict)
+}
+
+
+calcPredictionKfoldCV_dyn_2lev <-
+function(T_,adja,b,n,K,active_mu,active_sd,inactive_mu,inactive_sd,inactivePknock_mu,inactivePknock_sd){
+  # which genes are silenced in removed observation
+  
+#  print("calc act")
+#  print(adja)
+#  print(b)
+#  print(n)
+#  print(K)
+  act_mat <- calcActivation(adja,b,n,K)
+#  print("act_mat")
+#  print(act_mat)
+  predict = array(NA, c(n,K,T_))
+  for (t in 1:T_){
+		predict[,,t] <- getObsMat_2lev(act_mat,active_mu,active_sd,inactive_mu,inactive_sd,inactivePknock_mu,inactivePknock_sd)
+	}
+#	print("predict")
+#	print(predict)
+  return(predict)
+}
 
 
 calcPredictionKfoldCV_nonIterative <-

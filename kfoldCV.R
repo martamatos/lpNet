@@ -165,8 +165,8 @@ function(function_,lambda2_,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,
 #			print(obs)
 			
 			## do ILP
-			print("obs_modified")
-			print(obs_modified)
+#			print("obs_modified")
+#			print(obs_modified)
 			res <- function_(obs_modified,delta,lambda=lambda,lambda2_,b,n,K,T_,annot,previousNet,baseline_,previousBaseline,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos)
 			
 			adja <- getAdja(res,n)
@@ -179,6 +179,222 @@ function(function_,lambda2_,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,
 			
 			## calculate mean squared error of predicted and observed
 			predict <- calcPredictionKfoldCV_dyn(T_,adja,b,n,K,active_mu,active_sd,inactive_mu,inactive_sd)
+			ids_rem <- which(is.na(obs_modified))
+			sq_err_tmp <- c(sq_err_tmp,((predict[ids_rem]-obs[ids_rem])^2))
+		}
+#		print("end of kfold")
+#		print(k)
+#		print(edges_all)
+#		print(dim(edges_all))
+		sq_err_all <- rbind(sq_err_all,sq_err_tmp)
+  } # end times
+  sq_err <- apply(sq_err_all,2,mean,na.rm=T)
+  tmp1 <- rep(annot_node,rep(n,n))
+  tmp2 <- rep(annot_node,n)
+  id_selfloop <- which(tmp1==tmp2)
+  tmp <- paste(tmp1,tmp2,sep="->")
+  edges_all <- edges_all[,-id_selfloop]
+  colnames(edges_all) <- tmp[-id_selfloop]
+  MSE <- mean(sq_err,na.rm=T)
+  
+#  print("edges_all")
+#  print(edges_all)
+  
+  return(list(MSE=MSE,edges_all=edges_all,baseline_all=baseline_all))
+}
+
+kfoldCV_dyn_ddepn <-
+function(function_,lambda2_,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_=NULL,previousNet=NULL,baseline_=NULL,previousBaseline=NULL,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE)
+{
+
+	kds <- matrix(b,nrow=n,ncol=K)
+  # define k-fold groups: stratified
+  obs_kfold <- list()
+  num <- (dim(obs)[1]*dim(obs)[2]*dim(obs)[3])
+  le <- ceiling(num/kfold)
+  sq_err_all <- vector()
+  sq_err <- vector()
+#  print(obs)
+
+	edges_all = vector()
+	baseline_all = vector()
+	
+	
+#	print("cenas")
+#	print(le)
+#	print(obs)
+  
+  for(k in 1:times){
+		tmps <- sample(seq(1,kfold),kfold)
+		sq_err_tmp <- vector()
+		
+		for(j in 1:kfold){
+			tmp <- c(tmps[j:kfold],tmps[1:j-1])
+			obs_order <- order(obs)
+			obs_kfold[[j]] <- array(NA,c(n,K,T_))
+			for(i in 1:le){
+				if(num>=i){
+					obs_kfold[[j]][obs_order[tmp[1]]] <- obs[obs_order[tmp[1]]]
+				}
+			# 	  print(tmp)
+				obs_order <- obs_order[-tmp]
+				tmp <- c(tmp[-1],tmp[1])
+			}
+			obs_kfold[[j]] <- array(obs_kfold[[j]],c(n,K,T_))
+		}
+		
+		#   mean(obs_kfold[[1]],na.rm=T)
+		## make crossvalidation
+		adja_sum <- adja_num <- matrix(0,ncol=n,nrow=n)
+		
+		
+		for(x in 1:kfold){
+			test_ids <- seq(1,kfold)[-x]
+			train_tmp <- vector()
+			
+			for(i in test_ids){
+				train_tmp <- rbind(train_tmp,c(obs_kfold[[i]]))
+			}
+			train_data <- rep(NA,dim(train_tmp)[2])
+			
+			for(i in 1:dim(train_tmp)[2]){
+				if(!all(is.na(train_tmp[,i]))){
+					train_data[i] <- sum(train_tmp[,i],na.rm=T)
+				}
+			}
+			
+			train_data <- array(train_data,c(n,K,T_))
+			obs_modified <- train_data
+			
+#			rem_entries = which(is.na(obs_modified), arr.ind=TRUE)
+#			print(paste("kfold: ", x, sep=""))
+#			print(paste("time ", k, sep=""))
+#			print("obs_modified")
+#			print(obs_modified)
+#			print(obs)
+			
+			## do ILP
+#			print("obs_modified")
+#			print(obs_modified)
+			res <- function_(obs_modified,delta,lambda=lambda,lambda2_,b,n,K,T_,annot,previousNet,baseline_,previousBaseline,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos)
+			
+			adja <- getAdja(res,n)
+#			print("adja")
+#			print(adja)
+			baseline <- getBaseline(res,n=n,T_=NULL)
+			## calculate statistics on learned edges
+			edges_all <- rbind(edges_all,c(t(adja)))
+			baseline_all <- rbind(baseline_all, baseline)
+			
+			## calculate mean squared error of predicted and observed
+			predict <- calcPredictionKfoldCV_dyn_ddepn(T_,adja,b,n,K,active_mu,active_sd,inactive_mu,inactive_sd)
+			ids_rem <- which(is.na(obs_modified))
+			sq_err_tmp <- c(sq_err_tmp,((predict[ids_rem]-obs[ids_rem])^2))
+		}
+#		print("end of kfold")
+#		print(k)
+#		print(edges_all)
+#		print(dim(edges_all))
+		sq_err_all <- rbind(sq_err_all,sq_err_tmp)
+  } # end times
+  sq_err <- apply(sq_err_all,2,mean,na.rm=T)
+  tmp1 <- rep(annot_node,rep(n,n))
+  tmp2 <- rep(annot_node,n)
+  id_selfloop <- which(tmp1==tmp2)
+  tmp <- paste(tmp1,tmp2,sep="->")
+  edges_all <- edges_all[,-id_selfloop]
+  colnames(edges_all) <- tmp[-id_selfloop]
+  MSE <- mean(sq_err,na.rm=T)
+  
+#  print("edges_all")
+#  print(edges_all)
+  
+  return(list(MSE=MSE,edges_all=edges_all,baseline_all=baseline_all))
+}
+
+kfoldCV_dyn_2lev <-
+function(function_,lambda2_,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_=NULL,previousNet=NULL,baseline_=NULL,previousBaseline=NULL,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE)
+{
+
+	kds <- matrix(b,nrow=n,ncol=K)
+  # define k-fold groups: stratified
+  obs_kfold <- list()
+  num <- (dim(obs)[1]*dim(obs)[2]*dim(obs)[3])
+  le <- ceiling(num/kfold)
+  sq_err_all <- vector()
+  sq_err <- vector()
+#  print(obs)
+
+	edges_all = vector()
+	baseline_all = vector()
+	
+	
+#	print("cenas")
+#	print(le)
+#	print(obs)
+  
+  for(k in 1:times){
+		tmps <- sample(seq(1,kfold),kfold)
+		sq_err_tmp <- vector()
+		
+		for(j in 1:kfold){
+			tmp <- c(tmps[j:kfold],tmps[1:j-1])
+			obs_order <- order(obs)
+			obs_kfold[[j]] <- array(NA,c(n,K,T_))
+			for(i in 1:le){
+				if(num>=i){
+					obs_kfold[[j]][obs_order[tmp[1]]] <- obs[obs_order[tmp[1]]]
+				}
+			# 	  print(tmp)
+				obs_order <- obs_order[-tmp]
+				tmp <- c(tmp[-1],tmp[1])
+			}
+			obs_kfold[[j]] <- array(obs_kfold[[j]],c(n,K,T_))
+		}
+		
+		#   mean(obs_kfold[[1]],na.rm=T)
+		## make crossvalidation
+		adja_sum <- adja_num <- matrix(0,ncol=n,nrow=n)
+		
+		
+		for(x in 1:kfold){
+			test_ids <- seq(1,kfold)[-x]
+			train_tmp <- vector()
+			
+			for(i in test_ids){
+				train_tmp <- rbind(train_tmp,c(obs_kfold[[i]]))
+			}
+			train_data <- rep(NA,dim(train_tmp)[2])
+			
+			for(i in 1:dim(train_tmp)[2]){
+				if(!all(is.na(train_tmp[,i]))){
+					train_data[i] <- sum(train_tmp[,i],na.rm=T)
+				}
+			}
+			
+			train_data <- array(train_data,c(n,K,T_))
+			obs_modified <- train_data
+#			print(paste("kfold: ", x, sep=""))
+#			print(paste("time ", k, sep=""))
+#			print("obs_modified")
+#			print(obs_modified)
+#			print(obs)
+			
+			## do ILP
+#			print("obs_modified")
+#			print(obs_modified)
+			res <- function_(obs_modified,delta,lambda=lambda,lambda2_,b,n,K,T_,annot,previousNet,baseline_,previousBaseline,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos)
+			
+			adja <- getAdja(res,n)
+#			print("adja")
+#			print(adja)
+			baseline <- getBaseline(res,n=n,T_=NULL)
+			## calculate statistics on learned edges
+			edges_all <- rbind(edges_all,c(t(adja)))
+			baseline_all <- rbind(baseline_all, baseline)
+			
+			## calculate mean squared error of predicted and observed
+			predict <- calcPredictionKfoldCV_dyn_2lev(T_,adja,b,n,K,active_mu,active_sd,inactive_mu,inactive_sd,inactivePknock_mu,inactivePknock_sd)
 			ids_rem <- which(is.na(obs_modified))
 			sq_err_tmp <- c(sq_err_tmp,((predict[ids_rem]-obs[ids_rem])^2))
 		}

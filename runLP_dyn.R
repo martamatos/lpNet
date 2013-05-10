@@ -8,7 +8,7 @@ runLP_dyn = function(function_, lambda2_, geneState_, sd_all, totalruns, loocv_t
 	print(T_undNet)
 	act_mat = calcActivation(T_undNet,b_,n,K)
 	sd_i = 1
-
+	print(act_mat)
 	auc_list = matrix(c(NA), nrow=length(sd_all), ncol=4)
 	auc_list_median  = matrix(c(NA), nrow=length(sd_all), ncol=10)
 	randROC_list = vector()
@@ -40,7 +40,7 @@ runLP_dyn = function(function_, lambda2_, geneState_, sd_all, totalruns, loocv_t
 			
 			for (t in 1:T_){
 				b = b_[t,]
-				geneState = geneState_[t,]
+				geneState = geneState_[,,t]
 				obs_all <-  vector()
 
 				for(repl in 1:replnum)
@@ -63,8 +63,8 @@ runLP_dyn = function(function_, lambda2_, geneState_, sd_all, totalruns, loocv_t
 			# run nonIterative model
 			ret <- doIt_dyn(function_,lambda2_,loocv_times,obs,n,b,K,delta,lambda=lamd,annot,annot_node,T_,previousNet,baseline,previousBaseline,prior=NULL,startNode=NULL,endNode=NULL,allint=FALSE,active_mu,active_sd,inactive_mu,inactive_sd)
 			
-#				print("ret$edges_all")
-#				print(ret$edges_all)
+				print("ret$edges_all")
+				print(ret$edges_all)
 			edges[[i]] = ret$edges_all
 			colnames(T_undNet) <- rownames(T_undNet) <- annot_node
 			randRoc = calcRandROC(T_undNet,100)
@@ -92,7 +92,10 @@ runLP_dyn = function(function_, lambda2_, geneState_, sd_all, totalruns, loocv_t
 			
 		} # end of total_runs
 		
-		save(edges,file=sprintf("%s/edges_std%s", outputDir,std))
+		save(edges,file=sprintf("%s/edges_std%s.Rdata", outputDir,std))
+		
+		print(aucROC)
+		print(aucPR)
 		
 		# get the median/mean values for AUC-ROC AUC-PR
 		auc_list[sd_i,] <- c(mean(aucROC,na.rm=T),mean(aucPR,na.rm=T),sd(aucROC,na.rm=T),sd(aucPR,na.rm=T))

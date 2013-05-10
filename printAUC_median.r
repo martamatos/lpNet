@@ -43,8 +43,14 @@ printAUC_median_und = function(auc,sd_all,randROC,randPR,totalruns, t, ouputDir)
 {
 		auc2 = sd_all
 		auc2 = cbind(auc2, auc)
-		auc2 = rbind(auc2, c(0,quantile(randROC),quantile(randPR)))
+#		auc2 = rbind(auc2, c(0,quantile(randROC),quantile(randPR)))
 		
+#		auc_rand = vector()
+#		temp = c(quantile(randROC),quantile(randPR))
+		
+#		for (it in 1:length(sd_all)){
+#			auc_rand = rbind(auc_rand,c(sd_all[it], temp))
+#		}
 		
 #		print("auc2 median")
 #		print(auc2)
@@ -56,7 +62,7 @@ printAUC_median_und = function(auc,sd_all,randROC,randPR,totalruns, t, ouputDir)
 		
 #		print(auc2)
 		write.table(auc2,sprintf('%s/auc_und_median.txt', ouputDir),quote=FALSE,row.names=F,col.names=F)
-	
+#		write.table(t(auc_rand),sprintf('%s/auc_und_median_randROC.txt', ouputDir),quote=FALSE,row.names=F,col.names=F)
 
 #		postscript(sprintf('%s/aucROC_t=%s.eps', ouputDir,t),horizontal=T)
 #		plot(sd_all,auc[1:3,1],main="AUC values for varying noise",xlab="Noise",ylab="AUC value",ylim=c(0,1),type="l",lwd=2)
