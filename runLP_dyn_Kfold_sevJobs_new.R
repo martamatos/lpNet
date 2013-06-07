@@ -1,4 +1,4 @@
-runLP_dyn_Kfold_sevJobs_new = function(LPfunction, CVfunction, kfold, geneState_, sd_all, totalruns, loocv_times, replnum, b_, n, K, T_, T_undNet, annot, annot_node, active_mu, inactive_mu, active_sd, inactive_sd, stepsize,outputDir,prior=NULL,startNode=NULL,endNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
+runLP_dyn_Kfold_sevJobs_new = function(LPfunction, CVfunction, predFunction, kfold, geneState_, sd_all, totalruns, loocv_times, replnum, b_, n, K, T_, T_undNet, annot, annot_node, active_mu, inactive_mu, active_sd, inactive_sd, stepsize,outputDir,prior=NULL,startNode=NULL,endNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
 {
 
 #--------------------------------------------------------
@@ -28,6 +28,7 @@ runLP_dyn_Kfold_sevJobs_new = function(LPfunction, CVfunction, kfold, geneState_
 		baselines_all[[sd_i]] <- nw_all[[sd_i]] <- aucROC[[sd_i]] <- aucPR[[sd_i]] <- vector()
 		
 		edges = list()
+		baselines = list()
 		
 		for(i in 1:totalruns)
 		{
@@ -58,10 +59,11 @@ runLP_dyn_Kfold_sevJobs_new = function(LPfunction, CVfunction, kfold, geneState_
 			print(geneState_)
 
 			# run nonIterative model
-			ret <- doIt_dyn_new(LPfunction=LPfunction,CVfunction=CVfunction, loocv_times=loocv_times, kfold=kfold,stepsize=stepsize,obs=obs[[sd_i]],n=n,b=b,K=K,delta=delta[[sd_i]],annot=annot,annot_node=annot_node,T_=T_,prior=prior,startNode=startNode,endNode=endNode,allint=allint,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk,muPgt=muPgt,muPgkt=muPgkt,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
+			ret <- doIt_dyn(LPfunction=LPfunction,CVfunction=CVfunction, predFunction=predFunction,loocv_times=loocv_times, kfold=kfold,stepsize=stepsize,obs=obs[[sd_i]],n=n,b=b,K=K,delta=delta[[sd_i]],annot=annot,annot_node=annot_node,T_=T_,prior=prior,startNode=startNode,endNode=endNode,allint=allint,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk,muPgt=muPgt,muPgkt=muPgkt,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
 
 			edges[[i]] = ret$edges_all
-
+			baselines[[i]] = ret$baseline_all
+			
 			colnames(T_undNet) <- rownames(T_undNet) <- annot_node
 
 			## calculate Sensitivity and Specificity and ROC curve
@@ -83,6 +85,7 @@ runLP_dyn_Kfold_sevJobs_new = function(LPfunction, CVfunction, kfold, geneState_
 		} # end of total_runs
 		
 		save(edges,file=sprintf("%s/edges_std%s.Rdata", outputDir,std))
+		save(baselines,file=sprintf("%s/baselines_std%s.Rdata", outputDir,std))
 		
 		sd_i = sd_i + 1
 	} # end of sd_all

@@ -1,5 +1,5 @@
-kfoldCV_new <-
-function(function_,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_=NULL,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
+kfoldCV_LP <-
+function(function_,predFunction,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_=NULL,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
 {
   # define k-fold groups: stratified
   obs_kfold <- list()
@@ -9,6 +9,7 @@ function(function_,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_=NULL,a
   edges_all <- baseline_all <- vector()
   sq_err <- vector()
 
+	
   for(k in 1:times){
 		tmps <- sample(seq(1,kfold),kfold)
 		sq_err_tmp <- vector()
@@ -48,7 +49,7 @@ function(function_,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_=NULL,a
 			}
 			train_data <- matrix(train_data,nrow=n,ncol=K)
 			obs_modified <- train_data
-			rem_entries = which(is.na(obs_modified), arr.ind=TRUE)
+			
 			
 			## do ILP
 			res <- function_(obs=obs_modified,delta=delta,lambda=lambda,b=b,n=n,K=K,T_=T_,annot,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
@@ -60,7 +61,7 @@ function(function_,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_=NULL,a
 			baseline_all <- rbind(baseline_all, baseline)
 			
 			## calculate mean squared error of predicted and observed
-			predict <- calcPredictionKfoldCV_new(b=b,n=n,K=K,adja=adja,baseline=baseline,obs=obs_modified,delta=delta,rem_entries=rem_entries,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk)
+			predict <- predFunction(b=b,n=n,K=K,adja=adja,baseline=baseline,obs=obs_modified,delta=delta,rem_entries=rem_entries,rem_entries_vec=rem_entries_vec,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk)
 			
 			ids_rem <- which(is.na(obs_modified))
 			sq_err_tmp <- c(sq_err_tmp,((predict[ids_rem]-obs[ids_rem])^2))
@@ -84,10 +85,7 @@ function(function_,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_=NULL,a
 
 
 
-
-
-
-kfoldCV_dyn_new <-function(function_,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
+kfoldCV_dyn <-function(function_,predFunction,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
 {
 
   # define k-fold groups: stratified
@@ -103,6 +101,7 @@ kfoldCV_dyn_new <-function(function_,kfold,times,obs,n,b,K,delta,lambda,annot,an
 	# trick so that observations from t=1 are not removed, part 1
 	obst1 = obs[,,1]
 	obs = obs[,,-1]
+	NAentries = which(is.na(obs))
 
 	
   for(k in 1:times){
@@ -141,18 +140,31 @@ kfoldCV_dyn_new <-function(function_,kfold,times,obs,n,b,K,delta,lambda,annot,an
 			
 			train_data <- array(train_data,c(n,K,T_-1))
 			obs_modified <- train_data
+		
+			rem_entries = which(is.na(obs_modified), arr.ind=TRUE)
+			rem_entries_vec = which(is.na(obs_modified))
+
+			rowsToRemove = which(rem_entries_vec %in% intersect(rem_entries_vec, NAentries))
+
+			
+			if (length(rowsToRemove)>0){
+				rem_entries = rem_entries[-rowsToRemove,]
+				rem_entries_vec = rem_entries_vec[-rowsToRemove]
+			}
+			rem_entries[,3] = rem_entries[,3] + 1
+			rem_entries_vec = rem_entries_vec + n*K
+
 			
 			# trick so that observations from t=1 are not removed, part 2
 			obstemp = array(NA, c(n,K,T_))
 			obstemp[,,1] =obst1
 			obstemp[,,2:T_] =obs_modified
 			obs_modified = obstemp
-			rem_entries = which(is.na(obs_modified), arr.ind=TRUE)
-			
+
 			
 			## do ILP
 			res <- function_(obs=obs_modified,delta=delta,lambda=lambda,b=b,n=n,K=K,T_=T_,annot,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
-			
+
 			adja <- getAdja(res,n)
 			baseline <- getBaseline(res,n=n,T_=NULL)
 			## calculate statistics on learned edges
@@ -160,7 +172,8 @@ kfoldCV_dyn_new <-function(function_,kfold,times,obs,n,b,K,delta,lambda,annot,an
 			baseline_all <- rbind(baseline_all, baseline)
 			
 			## calculate mean squared error of predicted and observed
-			predict <- calcPredictionKfoldCV_dyn_new(b=b,n=n,K=K,adja=adja,baseline=baseline,obs=obs_modified,delta=delta,rem_entries=rem_entries,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk,muPgt=muPgt,muPgkt=muPgkt)
+			predict <- predFunction(b=b,n=n,K=K,adja=adja,baseline=baseline,obs=obs_modified,delta=delta,rem_entries=rem_entries,rem_entries_vec=rem_entries_vec,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk,muPgt=muPgt,muPgkt=muPgkt)
+
 			ids_rem <- which(is.na(obs_modified))
 			sq_err_tmp <- c(sq_err_tmp,((predict[ids_rem]-obs[ids_rem])^2))
 		}
@@ -178,4 +191,3 @@ kfoldCV_dyn_new <-function(function_,kfold,times,obs,n,b,K,delta,lambda,annot,an
   
   return(list(MSE=MSE,edges_all=edges_all,baseline_all=baseline_all))
 }
-

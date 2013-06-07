@@ -1,8 +1,7 @@
-loocv_new <-
-function(function_,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,annot_node,T_=NULL,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
+loocv_LP <-
+function(function_,predFunction,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,annot_node,T_=NULL,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
 {
-
-  kds <- matrix(b,nrow=n,ncol=K)
+	
   # elements to leave out (each element at least once)
   looc <- cbind(rep(seq(1,dim(obs)[1]),dim(obs)[2]),rep(seq(1,dim(obs)[2]),rep(dim(obs)[1],dim(obs)[2])))
 
@@ -30,7 +29,7 @@ function(function_,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,annot_node,T_=N
 			
 			for(i in 1:times){
 				## calculate mean squared error of predicted and observed
-				predict <- calcPredictionLOOCV_new(b=b,n=n,K=K,adja=adja,baseline=baseline,obs=obs_modified,delta=delta,rem_gene=rem_gene, rem_k=rem_kd,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk)
+				predict <- predFunction(b=b,n=n,K=K,adja=adja,baseline=baseline,obs=obs_modified,delta=delta,rem_gene=rem_gene, rem_k=rem_kd,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk)
 				sq_err_tmp <- c(sq_err_tmp,((predict-ele)^2))
 			}
 			
@@ -57,11 +56,7 @@ function(function_,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,annot_node,T_=N
 
 
 
-
-
-
-
-loocv_dyn_new <-function(function_,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
+loocv_dyn <-function(function_,predFunction,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
 {
 
   # elements to leave out (each element at least once)
@@ -98,7 +93,7 @@ loocv_dyn_new <-function(function_,kfold=NULL,times,obs,n,b,K,delta,lambda,annot
 			
 			for(i in 1:times){
 				## calculate mean squared error of predicted and observed
-				predict <- calcPredictionLOOCV_dyn_new(b=b,n=n,K=K,adja=adja,baseline=baseline,obs=obs_modified,delta=delta,rem_gene=rem_gene, rem_k=rem_kd, rem_t=rem_t,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk,muPgt=muPgt,muPgkt=muPgkt)
+				predict <- predFunction(b=b,n=n,K=K,adja=adja,baseline=baseline,obs=obs_modified,delta=delta,rem_gene=rem_gene, rem_k=rem_kd, rem_t=rem_t,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk,muPgt=muPgt,muPgkt=muPgkt)
 				sq_err_tmp <- c(sq_err_tmp,((predict-ele)^2))
 			}
 			
@@ -107,7 +102,7 @@ loocv_dyn_new <-function(function_,kfold=NULL,times,obs,n,b,K,delta,lambda,annot
 			baseline_all <- rbind(baseline_all, baseline)
 			sq_err <- c(sq_err,mean(sq_err_tmp,na.rm=T))
 		}
-  }
+	}
 #   adja_mu <- adja_sum/(times*dim(looc)[1])
 #   adja_prob <- adja_num/(times*dim(looc)[1])
   tmp1 <- rep(annot_node,rep(n,n))

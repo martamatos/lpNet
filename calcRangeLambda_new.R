@@ -1,4 +1,4 @@
-calcRangeLambda_new <- function(delta,obs,stepsize,deltaPk=FALSE){
+calcRangeLambda_LP <- function(delta,obs,stepsize,deltaPk=FALSE){
   l <- 0
  
   if (deltaPk == F){
@@ -21,7 +21,7 @@ calcRangeLambda_new <- function(delta,obs,stepsize,deltaPk=FALSE){
 }
 
 
-calcRangeLambda_dyn_new <- function(delta,obs,stepsize,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE){
+calcRangeLambda_dyn <- function(delta,obs,stepsize,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE){
 
   l <- 0
   
@@ -41,6 +41,7 @@ calcRangeLambda_dyn_new <- function(delta,obs,stepsize,deltaPk=FALSE,deltaPt=FAL
 		for(i in 1:dim(delta)[1]){
 			for(t in 1:dim(delta)[2]){
 				l <- sum(c(l,obs[i,,t]<delta[i,t]),na.rm=T)
+				
 			}
 		}
 	}

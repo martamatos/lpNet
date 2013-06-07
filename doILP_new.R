@@ -38,9 +38,9 @@ function(obs,delta,lambda,b,n,K,T_=NULL,annot,prior=NULL,sourceNode=NULL,sinkNod
 							W[count,i+(n*n)] <- 1
 							# sum
 							for(j in J[J!=i]){
-							# positive parameter
-							id <- which(annot==paste("w+",j,i,sep="_"))
-							W[count,id] <- obs[j,k]
+								# positive parameter
+								id <- which(annot==paste("w+",j,i,sep="_"))
+								W[count,id] <- obs[j,k]
 							}
 						}
 						else{
@@ -109,9 +109,9 @@ function(obs,delta,lambda,b,n,K,T_=NULL,annot,prior=NULL,sourceNode=NULL,sinkNod
 							W[count,i+(n*n)] <- 1
 							# sum
 							for(j in J[J!=i]){
-							# positive parameter
-							id <- which(annot==paste("w+",j,i,sep="_"))
-							W[count,id] <- obs[j,k]
+								# positive parameter
+								id <- which(annot==paste("w+",j,i,sep="_"))
+								W[count,id] <- obs[j,k]
 							}
 						}
 						else{
@@ -213,15 +213,17 @@ function(obs,delta,lambda,b,n,K,T_=NULL,annot,prior=NULL,sourceNode=NULL,sinkNod
 	  # outgoing edge can come from all nodes except itself
 	  tmp <- seq(1,n)[-i]
 	  if(length(tmp)>1){
-		# for negative and positive parameter
-		annot_pos <- paste("w+",i,tmp,sep="_")
-		if(!all.pos) annot_neg <- paste("w-",i,tmp,sep="_")
-		add_row <- rep(0,length(cvec))
-		add_row[which(annot%in%annot_pos)] <- 1
-		if(!all.pos) add_row[which(annot%in%annot_neg)] <- 1
-		W_tmp1 <- rbind(W_tmp1,as.double(add_row))
-		bvec <- c(bvec,delta[i])
-		f.dir <- c(f.dir,">=")
+			# for negative and positive parameter
+			annot_pos <- paste("w+",i,tmp,sep="_")
+			
+			if(!all.pos) annot_neg <- paste("w-",i,tmp,sep="_")
+			add_row <- rep(0,length(cvec))
+			add_row[which(annot%in%annot_pos)] <- 1
+			
+			if(!all.pos) add_row[which(annot%in%annot_neg)] <- 1
+			W_tmp1 <- rbind(W_tmp1,as.double(add_row))
+			bvec <- c(bvec,delta[i])
+			f.dir <- c(f.dir,">=")
 	  }
 	}
 	W <- rbind(W,W_tmp1)
@@ -229,34 +231,36 @@ function(obs,delta,lambda,b,n,K,T_=NULL,annot,prior=NULL,sourceNode=NULL,sinkNod
   
   ## conditions that each node which is not Start has at least delta[i] incoming edges
   if(!is.null(sourceNode)){
-	W_tmp2 <- vector()
-	gene_tmp <- seq(1,n)[-sourceNode]
-	for(i in gene_tmp){
-	  # incoming edge can come from all nodes except itself
-	  tmp <- seq(1,n)[-i]
-	  if(length(tmp)>1){
-		annot_pos <- paste("w+",tmp,i,sep="_")
-		if(!all.pos) annot_neg <- paste("w-",tmp,i,sep="_")
-		add_row <- rep(0,length(cvec))
-		add_row[which(annot%in%annot_pos)] <- 1
-		if(!all.pos) add_row[which(annot%in%annot_neg)] <- 1
-		W_tmp2 <- rbind(W_tmp2,as.double(add_row))
-		bvec <- c(bvec,delta[i])
-		f.dir <- c(f.dir,">=")
-	  }
-	}
-	W <- rbind(W,W_tmp2)
+		W_tmp2 <- vector()
+		gene_tmp <- seq(1,n)[-sourceNode]
+		for(i in gene_tmp){
+			# incoming edge can come from all nodes except itself
+			tmp <- seq(1,n)[-i]
+			if(length(tmp)>1){
+				annot_pos <- paste("w+",tmp,i,sep="_")
+				
+				if(!all.pos) annot_neg <- paste("w-",tmp,i,sep="_")
+				add_row <- rep(0,length(cvec))
+				add_row[which(annot%in%annot_pos)] <- 1
+				
+				if(!all.pos) add_row[which(annot%in%annot_neg)] <- 1
+				W_tmp2 <- rbind(W_tmp2,as.double(add_row))
+				bvec <- c(bvec,delta[i])
+				f.dir <- c(f.dir,">=")
+			}
+		}
+		W <- rbind(W,W_tmp2)
   }
 
   ## if there is a prior
   if(!is.null(prior)){
-	for(i in 1:length(prior)){
-	  tmp <- rep(0,dim(W)[2])
-	  tmp[which(prior[[i]][1]==annot)] <- as.double(prior[[i]][2])
-	  W <- rbind(W,tmp)
-	  bvec <- c(bvec,as.double(prior[[i]][4]))
-	  f.dir <- c(f.dir,prior[[i]][3])
-	}
+		for(i in 1:length(prior)){
+			tmp <- rep(0,dim(W)[2])
+			tmp[which(prior[[i]][1]==annot)] <- as.double(prior[[i]][2])
+			W <- rbind(W,tmp)
+			bvec <- c(bvec,as.double(prior[[i]][4]))
+			f.dir <- c(f.dir,prior[[i]][3])
+		}
   }
   
   ## Maximize the gross margin
