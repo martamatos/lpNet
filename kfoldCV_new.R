@@ -55,7 +55,7 @@ function(function_,predFunction,kfold,times,obs,n,b,K,delta,lambda,annot,annot_n
 			res <- function_(obs=obs_modified,delta=delta,lambda=lambda,b=b,n=n,K=K,T_=T_,annot,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
 		
 			adja <- getAdja(res,n)
-			baseline <- getBaseline(res,n=n,T_=NULL)
+			baseline <- getBaseline(res,n=n)
 			## calculate statistics on learned edges
 			edges_all <- rbind(edges_all,c(t(adja)))
 			baseline_all <- rbind(baseline_all, baseline)
@@ -166,7 +166,7 @@ kfoldCV_dyn <-function(function_,predFunction,kfold,times,obs,n,b,K,delta,lambda
 			res <- function_(obs=obs_modified,delta=delta,lambda=lambda,b=b,n=n,K=K,T_=T_,annot,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
 
 			adja <- getAdja(res,n)
-			baseline <- getBaseline(res,n=n,T_=NULL)
+			baseline <- getBaseline(res,n=n)
 			## calculate statistics on learned edges
 			edges_all <- rbind(edges_all,c(t(adja)))
 			baseline_all <- rbind(baseline_all, baseline)

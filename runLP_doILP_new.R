@@ -14,13 +14,13 @@ runLP_doILP_new = function(LPfunction, CVfunction, predFunction, kfold, geneStat
 
 	aucROC = list()
 	aucPR = list()
-	
-	nw_all = list()
-	baselines_all = list()
+
+	obs = list()
+	delta = list()
 
 	for(std in sd_all)
 	{
-		baselines_all[[sd_i]] <- nw_all[[sd_i]] <- aucROC[[sd_i]] <- aucPR[[sd_i]] <- vector()
+		aucROC[[sd_i]] <- aucPR[[sd_i]] <- vector()
 		
 		edges = list()
 		baselines = list()
@@ -28,7 +28,7 @@ runLP_doILP_new = function(LPfunction, CVfunction, predFunction, kfold, geneStat
 		for(i in 1:totalruns)
 		{
 			# generate observation matrix and delta vector
-			obs = matrix(NA, nrow=n, ncol=K)
+			obs[[sd_i]]  = matrix(NA, nrow=n, ncol=K)
 			tmp = c()
 			
 			b = b_
@@ -41,20 +41,20 @@ runLP_doILP_new = function(LPfunction, CVfunction, predFunction, kfold, geneStat
 				obs_all <- rbind(obs_all,c(obs_tmp))
 				tmp <- cbind(tmp,rnorm(n,mean(c(active_mu,inactive_mu)),std))
 			}
-			obs <- matrix(apply(obs_all,2,mean,na.rm=T),nrow=n,ncol=K)
+			obs[[sd_i]] <- matrix(apply(obs_all,2,mean,na.rm=T),nrow=n,ncol=K)
 			
-			delta <- apply(tmp,1,mean,na.rm=T)
+			delta[[sd_i]] <- apply(tmp,1,mean,na.rm=T)
 			
 			print("obs")
-			print(obs)
-			print(delta)
+			print(obs[[sd_i]] )
+			print(delta[[sd_i]] )
 			print(b)
 			print(geneState_)
 
 			# run nonIterative model
 
 			
-			ret <- doIt_LP(LPfunction=LPfunction,CVfunction=CVfunction, predFunction=predFunction, loocv_times=loocv_times, kfold=kfold,stepsize=stepsize,obs=obs,n=n,b=b,K=K,delta=delta,annot=annot,annot_node=annot_node,T_=T_,prior=prior,startNode=startNode,endNode=endNode,allint=allint,allpos,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk,muPgt=muPgt,muPgkt=muPgkt,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
+			ret <- doIt_LP(LPfunction=LPfunction,CVfunction=CVfunction, predFunction=predFunction, loocv_times=loocv_times, kfold=kfold,stepsize=stepsize,obs=obs[[sd_i]],n=n,b=b,K=K,delta=delta[[sd_i]],annot=annot,annot_node=annot_node,T_=T_,prior=prior,startNode=startNode,endNode=endNode,allint=allint,allpos,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk,muPgt=muPgt,muPgkt=muPgkt,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
 
 			edges[[i]] = ret$edges_all
 			baselines[[i]] = ret$baseline_all
@@ -63,20 +63,11 @@ runLP_doILP_new = function(LPfunction, CVfunction, predFunction, kfold, geneStat
 
 
 			## calculate Sensitivity and Specificity and ROC curve
-			cv_roc <- calc_ROC(ret$edges_all,T_undNet,path="loocv_roc",triple=TRUE,plot=FALSE,t=1,std=std,outputDir=outputDir)
+			cv_roc <- calc_ROC(edges_all=ret$edges_all,T_nw=T_undNet,path=NULL,triple=TRUE,plot=FALSE,sampleMAD=TRUE, method1=median, method2=mad, method2Times=1, septype="->")
 		
 			aucROC[[sd_i]] <- c(aucROC[[sd_i]],cv_roc[[2]])
 			aucPR[[sd_i]] <- c(aucPR[[sd_i]],cv_roc[[3]])
 			
-			# if returned best network is not null store it together with the baseline values
-			if (!is.na(cv_roc$best_nw)){
-				nw_all[[sd_i]] = rbind(nw_all[[sd_i]], cv_roc$best_nw)
-				
-				ret$baseline_all[which(ret$baseline_all==0)] = NA
-				baselines_all[[sd_i]] = rbind(baselines_all[[sd_i]], apply(ret$baseline_all,2,mean,na.rm=T))
-				baselines_all[[sd_i]][which(is.na(baselines_all[[sd_i]]))] = 0
-			}
-
 			
 		} # end of total_runs
 		

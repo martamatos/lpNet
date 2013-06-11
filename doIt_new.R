@@ -46,7 +46,7 @@ doIt_dyn<- function(LPfunction,CVfunction, predFunction, loocv_times, kfold=NULL
 	{
 		print(paste("current lambda: ", lamd, sep=""))
 		
-		res <- CVfunction(function_=LPfunction,predFunction=predFunction,kfold=kfold,times=loocv_times,obs=obs,n=n,b=b,K=K,delta=delta,lambda=lamd,annot=annot,annot_node=annot_node,T_=T_,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,allint=allint,allpos=allpos,muPgene=muPgene,muPgk=muPgk,muPgt=muPgt,muPgkt=muPgkt,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
+		res <- CVfunction(function_=LPfunction,predFunction=predFunction,kfold=kfold,times=loocv_times,obs=obs,n=n,b=b,K=K,delta=delta,lambda=lamd,annot=annot,annot_node=annot_node,T_=T_,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,prior=prior,sourceNode=startNode,sinkNode=endNode,allint=allint,allpos=allpos,muPgene=muPgene,muPgk=muPgk,muPgt=muPgt,muPgkt=muPgkt,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
 
 		if(res$MSE<MSE){
 			MSE <- res$MSE

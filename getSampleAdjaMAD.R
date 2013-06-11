@@ -5,6 +5,8 @@ getSampleAdjaMAD <- function(edges_all,numnodes,annot_node,method=median,method2
 	
   edge_med <- apply(edges_all2,2,method,na.rm=T)
   edge_mad <- apply(edges_all2,2,method2,na.rm=T)
+  
+  edge_mad = edge_mad * method2Times
 
   sample <- matrix(0,nrow=numnodes,ncol=numnodes)
   colnames(sample) <- rownames(sample) <- seq(1,numnodes)

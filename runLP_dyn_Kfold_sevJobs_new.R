@@ -14,18 +14,14 @@ runLP_dyn_Kfold_sevJobs_new = function(LPfunction, CVfunction, predFunction, kfo
 	
 	aucROC = list()
 	aucPR = list()
-	
-	nw_all = list()
-	baselines_all = list()
-	
+
 	obs = list()
 	delta = list()
-
 	
 	
 	for(std in sd_all)
 	{
-		baselines_all[[sd_i]] <- nw_all[[sd_i]] <- aucROC[[sd_i]] <- aucPR[[sd_i]] <- vector()
+		aucROC[[sd_i]] <- aucPR[[sd_i]] <- vector()
 		
 		edges = list()
 		baselines = list()
@@ -53,8 +49,8 @@ runLP_dyn_Kfold_sevJobs_new = function(LPfunction, CVfunction, predFunction, kfo
 
 			
 			print("obs")
-			print(obs)
-			print(delta)
+			print(obs[[sd_i]] )
+			print(delta[[sd_i]] )
 			print(b)
 			print(geneState_)
 
@@ -67,19 +63,10 @@ runLP_dyn_Kfold_sevJobs_new = function(LPfunction, CVfunction, predFunction, kfo
 			colnames(T_undNet) <- rownames(T_undNet) <- annot_node
 
 			## calculate Sensitivity and Specificity and ROC curve
-			cv_roc <- calc_ROC(ret$edges_all,T_undNet,path="loocv_roc",triple=TRUE,plot=FALSE,t=t,std=std,outputDir=outputDir)
+			cv_roc <- calc_ROC(edges_all=ret$edges_all,T_nw=T_undNet,path=NULL,triple=TRUE,plot=FALSE,sampleMAD=TRUE, method1=median, method2=mad, method2Times=1, septype="->")
+			
 			aucROC[[sd_i]] <- c(aucROC[[sd_i]],cv_roc[[2]])
 			aucPR[[sd_i]] <- c(aucPR[[sd_i]],cv_roc[[3]])
-
-			
-			# if returned best network is not null store it together with the baseline values
-			if (!is.na(cv_roc$best_nw)){
-				nw_all[[sd_i]] = rbind(nw_all[[sd_i]], cv_roc$best_nw)
-				
-				ret$baseline_all[which(ret$baseline_all==0)] = NA
-				baselines_all[[sd_i]] = rbind(baselines_all[[sd_i]], apply(ret$baseline_all,2,mean,na.rm=T))
-				baselines_all[[sd_i]][which(is.na(baselines_all[[sd_i]]))] = 0
-			}
 
 			
 		} # end of total_runs
