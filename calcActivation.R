@@ -67,10 +67,10 @@ function(T_nw,b,n,K)
 				for(c in children){
 					# if children kd -> they are inactive
 					if(kds[c,k]==0){
-					inflow[[c]] <- c(inflow[[c]],0)
-					nw[c,] <- 0
-					in_deg <- apply(abs(nw),2,sum)
-					done <- c(done,c)
+						inflow[[c]] <- c(inflow[[c]],0)
+						nw[c,] <- 0
+						in_deg <- apply(abs(nw),2,sum)
+						done <- c(done,c)
 					}
 					else{
 						if(sum(inflow[[i]])<=0) inflow[[c]] <- c(inflow[[c]],0)
@@ -94,29 +94,29 @@ function(T_nw,b,n,K)
 			# if any undone node which is not root has inflow>0 start there
 			ids <- undone[incom[undone]!=0]
 			if(length(ids)>0){
-			for(i in ids){
-				# if node is kd: inflow is zero (otherwise just let inflow like it is
-				if(kds[i,k]==0){
-					inflow[[i]] <- c(inflow[[i]],0)
-				}
-				else{
-					children <- which(nw[i,]!=0)
-					for(c in children){
-						# if children kd -> they are inactive
-						if(kds[c,k]==0){
-						inflow[[c]] <- c(inflow[[c]],0)
-						}
-						else{
-							if(sum(inflow[[i]])<=0) inflow[[c]] <- c(inflow[[c]],0)
+				for(i in ids){
+					# if node is kd: inflow is zero (otherwise just let inflow like it is
+					if(kds[i,k]==0){
+						inflow[[i]] <- c(inflow[[i]],0)
+					}
+					else{
+						children <- which(nw[i,]!=0)
+						for(c in children){
+							# if children kd -> they are inactive
+							if(kds[c,k]==0){
+							inflow[[c]] <- c(inflow[[c]],0)
+							}
 							else{
-								if(nw[i,c]>0) inflow[[c]] <- c(inflow[[c]],1)
-								else inflow[[c]] <- c(inflow[[c]],-1)
+								if(sum(inflow[[i]])<=0) inflow[[c]] <- c(inflow[[c]],0)
+								else{
+									if(nw[i,c]>0) inflow[[c]] <- c(inflow[[c]],1)
+									else inflow[[c]] <- c(inflow[[c]],-1)
+								}
 							}
 						}
 					}
+					done <- c(done,i)
 				}
-				done <- c(done,i)
-			}
 			}
 			# if no node is active: rest is inactive
 			else{
@@ -131,7 +131,9 @@ function(T_nw,b,n,K)
 		}
 		tmp <- unlist(lapply(inflow,sum))
 		activation_mat[,k] <- apply(cbind(rep(0,n),tmp),1,max)
+#		print(activation_mat)
 	}
   activation_mat[activation_mat!=0] <- 1
+#  print(activation_mat)
   return(activation_mat)
 }
