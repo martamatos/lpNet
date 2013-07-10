@@ -6,7 +6,7 @@ runLP_dyn_Kfold_sevJobs_new = function(LPfunction, CVfunction, predFunction, kfo
 #--------------------------------------------------------
 	print("T und net")
 	print(T_undNet)
-	act_mat = calcActivation(T_undNet,b_,n,K)
+	act_mat = calcActivation_dyn(T_undNet,b_,n,K)
 	
 	sd_i = 1
 	print("act_mat")
@@ -33,7 +33,6 @@ runLP_dyn_Kfold_sevJobs_new = function(LPfunction, CVfunction, predFunction, kfo
 			tmp = c()
 			
 			for (t in 1:T_){
-				b = b_
 				geneState = geneState_[,,t]
 				obs_all <-  vector()
 
@@ -51,22 +50,22 @@ runLP_dyn_Kfold_sevJobs_new = function(LPfunction, CVfunction, predFunction, kfo
 			print("obs")
 			print(obs[[sd_i]] )
 			print(delta[[sd_i]] )
-			print(b)
+			print(b_)
 			print(geneState_)
 
 			# run nonIterative model
-			ret <- doIt_dyn(LPfunction=LPfunction,CVfunction=CVfunction, predFunction=predFunction,loocv_times=loocv_times, kfold=kfold,stepsize=stepsize,obs=obs[[sd_i]],n=n,b=b,K=K,delta=delta[[sd_i]],annot=annot,annot_node=annot_node,T_=T_,prior=prior,startNode=startNode,endNode=endNode,allint=allint,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk,muPgt=muPgt,muPgkt=muPgkt,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
+			ret <- doIt_dyn(LPfunction=LPfunction,CVfunction=CVfunction, predFunction=predFunction,loocv_times=loocv_times, kfold=kfold,stepsize=stepsize,obs=obs[[sd_i]],n=n,b=b_,K=K,delta=delta[[sd_i]],annot=annot,annot_node=annot_node,T_=T_,prior=prior,startNode=startNode,endNode=endNode,allint=allint,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk,muPgt=muPgt,muPgkt=muPgkt,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
 
 			edges[[i]] = ret$edges_all
 			baselines[[i]] = ret$baseline_all
 			
-			colnames(T_undNet) <- rownames(T_undNet) <- annot_node
+#			colnames(T_undNet) <- rownames(T_undNet) <- annot_node
 
-			## calculate Sensitivity and Specificity and ROC curve
-			cv_roc <- calc_ROC(edges_all=ret$edges_all,T_nw=T_undNet,path=NULL,triple=TRUE,plot=FALSE,sampleMAD=TRUE, method1=median, method2=mad, method2Times=1, septype="->")
+#			# calculate Sensitivity and Specificity and ROC curve
+#			cv_roc <- calc_ROC(edges_all=ret$edges_all,T_nw=T_undNet,path=NULL,triple=TRUE,plot=FALSE,sampleMAD=TRUE, method1=median, method2=mad, method2Times=1, septype="->")
 			
-			aucROC[[sd_i]] <- c(aucROC[[sd_i]],cv_roc[[2]])
-			aucPR[[sd_i]] <- c(aucPR[[sd_i]],cv_roc[[3]])
+#			aucROC[[sd_i]] <- c(aucROC[[sd_i]],cv_roc[[2]])
+#			aucPR[[sd_i]] <- c(aucPR[[sd_i]],cv_roc[[3]])
 
 			
 		} # end of total_runs
@@ -77,5 +76,5 @@ runLP_dyn_Kfold_sevJobs_new = function(LPfunction, CVfunction, predFunction, kfo
 		sd_i = sd_i + 1
 	} # end of sd_all
 	
-	return(list(aucROC=aucROC, aucPR=aucPR, nw_all=nw_all, baselines_all=baselines_all, obs=obs, delta=delta))
+	return(list(aucROC=aucROC, aucPR=aucPR, obs=obs, delta=delta))
 }

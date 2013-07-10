@@ -99,8 +99,10 @@ kfoldCV_dyn <-function(function_,predFunction,kfold,times,obs,n,b,K,delta,lambda
 	baseline_all = vector()
 	
 	# trick so that observations from t=1 are not removed, part 1
+	obs_complete = obs
 	obst1 = obs[,,1]
 	obs = obs[,,-1]
+	
 	NAentries = which(is.na(obs))
 
 	
@@ -157,8 +159,8 @@ kfoldCV_dyn <-function(function_,predFunction,kfold,times,obs,n,b,K,delta,lambda
 			
 			# trick so that observations from t=1 are not removed, part 2
 			obstemp = array(NA, c(n,K,T_))
-			obstemp[,,1] =obst1
-			obstemp[,,2:T_] =obs_modified
+			obstemp[,,1] = obst1
+			obstemp[,,2:T_] = obs_modified
 			obs_modified = obstemp
 
 			
@@ -174,8 +176,9 @@ kfoldCV_dyn <-function(function_,predFunction,kfold,times,obs,n,b,K,delta,lambda
 			## calculate mean squared error of predicted and observed
 			predict <- predFunction(b=b,n=n,K=K,adja=adja,baseline=baseline,obs=obs_modified,delta=delta,rem_entries=rem_entries,rem_entries_vec=rem_entries_vec,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk,muPgt=muPgt,muPgkt=muPgkt)
 
-			ids_rem <- which(is.na(obs_modified))
-			sq_err_tmp <- c(sq_err_tmp,((predict[ids_rem]-obs[ids_rem])^2))
+#			ids_rem <- which(is.na(obs_modified))
+			ids_rem <- rem_entries_vec
+			sq_err_tmp <- c(sq_err_tmp,((predict[ids_rem]-obs_complete[ids_rem])^2))
 		}
 
 		sq_err_all <- rbind(sq_err_all,sq_err_tmp)

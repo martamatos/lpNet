@@ -1,4 +1,4 @@
-runLP_doILP_new = function(LPfunction, CVfunction, predFunction, kfold, geneState_, sd_all, totalruns, loocv_times, replnum, b_, n, K, T_, T_undNet, annot, annot_node, active_mu, inactive_mu, active_sd, inactive_sd, stepsize,outputDir,prior=NULL,startNode=NULL,endNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
+runLP_doILP_new = function(LPfunction, CVfunction, predFunction, kfold, sd_all, totalruns, loocv_times, replnum, b_, n, K, T_, T_undNet, annot, annot_node, active_mu, inactive_mu, active_sd, inactive_sd, stepsize,outputDir,prior=NULL,startNode=NULL,endNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
 {
 
 #--------------------------------------------------------
@@ -30,14 +30,12 @@ runLP_doILP_new = function(LPfunction, CVfunction, predFunction, kfold, geneStat
 			# generate observation matrix and delta vector
 			obs[[sd_i]]  = matrix(NA, nrow=n, ncol=K)
 			tmp = c()
-			
-			b = b_
-			geneState = geneState_
+
 			obs_all <-  vector()
 
 			for(repl in 1:replnum)
 			{
-				obs_tmp <- getObsMat(act_mat,active_mu,std,inactive_mu,std,geneState)
+				obs_tmp <- getObsMat(act_mat,active_mu,std,inactive_mu,std)
 				obs_all <- rbind(obs_all,c(obs_tmp))
 				tmp <- cbind(tmp,rnorm(n,mean(c(active_mu,inactive_mu)),std))
 			}
@@ -48,25 +46,25 @@ runLP_doILP_new = function(LPfunction, CVfunction, predFunction, kfold, geneStat
 			print("obs")
 			print(obs[[sd_i]] )
 			print(delta[[sd_i]] )
-			print(b)
+			print(b_)
 			print(geneState_)
 
 			# run nonIterative model
 
 			
-			ret <- doIt_LP(LPfunction=LPfunction,CVfunction=CVfunction, predFunction=predFunction, loocv_times=loocv_times, kfold=kfold,stepsize=stepsize,obs=obs[[sd_i]],n=n,b=b,K=K,delta=delta[[sd_i]],annot=annot,annot_node=annot_node,T_=T_,prior=prior,startNode=startNode,endNode=endNode,allint=allint,allpos,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk,muPgt=muPgt,muPgkt=muPgkt,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
+			ret <- doIt_LP(LPfunction=LPfunction,CVfunction=CVfunction, predFunction=predFunction, loocv_times=loocv_times, kfold=kfold,stepsize=stepsize,obs=obs[[sd_i]],n=n,b=b_,K=K,delta=delta[[sd_i]],annot=annot,annot_node=annot_node,T_=T_,prior=prior,startNode=startNode,endNode=endNode,allint=allint,allpos,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk,muPgt=muPgt,muPgkt=muPgkt,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
 
 			edges[[i]] = ret$edges_all
 			baselines[[i]] = ret$baseline_all
 			
-			colnames(T_undNet) <- rownames(T_undNet) <- annot_node
+#			colnames(T_undNet) <- rownames(T_undNet) <- annot_node
 
 
 			## calculate Sensitivity and Specificity and ROC curve
-			cv_roc <- calc_ROC(edges_all=ret$edges_all,T_nw=T_undNet,path=NULL,triple=TRUE,plot=FALSE,sampleMAD=TRUE, method1=median, method2=mad, method2Times=1, septype="->")
+#			cv_roc <- calc_ROC(edges_all=ret$edges_all,T_nw=T_undNet,path=NULL,triple=TRUE,plot=FALSE,sampleMAD=TRUE, method1=median, method2=mad, method2Times=1, septype="->")
 		
-			aucROC[[sd_i]] <- c(aucROC[[sd_i]],cv_roc[[2]])
-			aucPR[[sd_i]] <- c(aucPR[[sd_i]],cv_roc[[3]])
+#			aucROC[[sd_i]] <- c(aucROC[[sd_i]],cv_roc[[2]])
+#			aucPR[[sd_i]] <- c(aucPR[[sd_i]],cv_roc[[3]])
 			
 			
 		} # end of total_runs
@@ -78,6 +76,6 @@ runLP_doILP_new = function(LPfunction, CVfunction, predFunction, kfold, geneStat
 		sd_i = sd_i + 1
 	} # end of sd_all
 	
-	return(list(aucROC=aucROC, aucPR=aucPR, nw_all=nw_all, baselines_all=baselines_all, obs=obs, delta=delta))
+	return(list(aucROC=aucROC, aucPR=aucPR, obs=obs, delta=delta))
 	
 }

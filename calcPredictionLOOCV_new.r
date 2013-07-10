@@ -93,7 +93,7 @@ calcPredictionLOOCV_LP <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_kd
 calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k, rem_t,active_mu,active_sd,inactive_mu,inactive_sd,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE)
 {
 	# activation matrix is the same regardless of time point
-	act_mat <- calcActivation(adja,b,n,K)
+	act_mat <- calcActivation_dyn(adja,b,n,K)
 	inact_entries = which(act_mat==0, arr.ind=T) # returns (i,k)
 	
 	res=vecMatch(c(rem_gene, rem_k), inact_entries)
@@ -101,13 +101,14 @@ calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k
 	
 	if (muPgene==F & muPgk==F & muPgt==F & muPgkt==F){
 		# if the removed entry is an inactive node due to some knockdown, then predict as inactive
-		if (any(res)==TRUE){
+		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu,inactive_sd)
 		}
 		else{
 			pa <- which(adja[,rem_gene]!=0)
 			# if there are no parents: rem_gene is root node and thus is considered to be active since it is not silenced
-			if (length(pa) == 0){
+			if (length(pa) == 0)
+			{
 				if (is.na(baseline[rem_gene])) base <- 0
 				else base <- baseline[rem_gene]
 				
@@ -122,8 +123,28 @@ calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k
 				if (is.na(baseline[rem_gene])) in_flow <- 0
 				else in_flow <- baseline[rem_gene]
 				
-				for(j in 1:length(pa)){
+				flagNA = 0
+				flagBreak = 0
+				
+				for(j in 1:length(pa))
+				{
+					if (is.na(obs[pa[j],rem_k,rem_t-1])){
+						flagNA = 1
+						
+						if (adja[pa[j],rem_gene] < 0 & act_mat[pa[j], rem_k]==1){
+							predict <- NA
+							flagBreak = 1
+							break 
+						}
+					}
 					in_flow <- sum(in_flow,(adja[pa[j],rem_gene]*obs[pa[j],rem_k,rem_t-1]),na.rm=T)
+				}
+				
+				if (flagBreak==1) next
+				
+				if (flagNA == 1 & in_flow < delta[rem_gene]){
+					predict <- NA
+					next
 				}
 				
 				if(in_flow >= delta[rem_gene]){
@@ -137,13 +158,14 @@ calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k
 	}
 	# if there is an in/active_mu/sd per gene
 	else if(muPgene==T){
-		if (any(res)==TRUE){
+		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu[rem_gene],inactive_sd[rem_gene])
 		}
 		else{
 			pa <- which(adja[,rem_gene]!=0)
 			# if there are no parents: rem_gene is root node and thus is considered to be active since it is not silenced
-			if (length(pa) == 0){
+			if (length(pa) == 0)
+			{
 				if (is.na(baseline[rem_gene])) base <- 0
 				else base <- baseline[rem_gene]
 				
@@ -158,11 +180,32 @@ calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k
 				if (is.na(baseline[rem_gene])) in_flow <- 0
 				else in_flow <- baseline[rem_gene]
 				
-				for(j in 1:length(pa)){
+				flagNA = 0
+				flagBreak = 0
+				
+				for(j in 1:length(pa))
+				{
+					if (is.na(obs[pa[j],rem_k,rem_t-1])){
+						flagNA = 1
+						
+						if (adja[pa[j],rem_gene] < 0 & act_mat[pa[j], rem_k]==1){
+							predict <- NA
+							flagBreak = 1
+							break 
+						}
+					}
 					in_flow <- sum(in_flow,(adja[pa[j],rem_gene]*obs[pa[j],rem_k,rem_t-1]),na.rm=T)
 				}
+				
+				if (flagBreak==1) next
+				
+				if (flagNA == 1 & in_flow < delta[rem_gene]){
+					predict <- NA
+					next
+				}
+				
 				if(in_flow >= delta[rem_gene]){
-					predict <- rnorm(1,active_mu[rem_gene],active_sd[rem_gene])
+					predict <- rnorm(1,active_mu[rem_gene],active_sd[rem_gene]) 
 				}
 				else{
 					predict <- rnorm(1,inactive_mu[rem_gene],inactive_sd[rem_gene])
@@ -173,13 +216,14 @@ calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k
 	# if there is an in/active_mu/sd and delta per gene per knockdown exp
 	else if(muPgk==T){
 		# if the removed entry is an inactive node due to some knockdown, then predict as inactive
-		if (any(res)==TRUE){
+		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu[rem_gene,rem_k],inactive_sd[rem_gene,rem_k])
 		}
 		else{
 			pa <- which(adja[,rem_gene]!=0)
 			# if there are no parents: rem_gene is root node and thus is considered to be active since it is not silenced
-			if (length(pa) == 0){
+			if (length(pa) == 0)
+			{
 				if (is.na(baseline[rem_gene])) base <- 0
 				else base <- baseline[rem_gene]
 				
@@ -194,11 +238,32 @@ calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k
 				if (is.na(baseline[rem_gene])) in_flow <- 0
 				else in_flow <- baseline[rem_gene]
 				
-				for(j in 1:length(pa)){
+				flagNA = 0
+				flagBreak = 0
+				
+				for(j in 1:length(pa))
+				{
+					if (is.na(obs[pa[j],rem_k,rem_t-1])){
+						flagNA = 1
+						
+						if (adja[pa[j],rem_gene] < 0 & act_mat[pa[j], rem_k]==1){
+							predict <- NA
+							flagBreak = 1
+							break 
+						}
+					}
 					in_flow <- sum(in_flow,(adja[pa[j],rem_gene]*obs[pa[j],rem_k,rem_t-1]),na.rm=T)
 				}
+				
+				if (flagBreak==1) next
+				
+				if (flagNA == 1 & in_flow < delta[rem_gene,rem_k]){
+					predict <- NA
+					next
+				}
+				
 				if(in_flow >= delta[rem_gene,rem_k]){
-					predict <- rnorm(1,active_mu[rem_gene,rem_k],active_sd[rem_gene,rem_k])
+					predict <- rnorm(1,active_mu[rem_gene,rem_k],active_sd[rem_gene,rem_k]) 
 				}
 				else{
 					predict <- rnorm(1,inactive_mu[rem_gene,rem_k],inactive_sd[rem_gene,rem_k])
@@ -209,13 +274,14 @@ calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k
 	# if there is an in/active_mu/sd and delta per gene per time point
 	else if(muPgt==T){
 		# if the removed entry is an inactive node due to some knockdown, then predict as inactive
-		if (any(res)==TRUE){
+		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu[rem_gene,rem_t],inactive_sd[rem_gene,rem_t])
 		}
 		else{
 			pa <- which(adja[,rem_gene]!=0)
 			# if there are no parents: rem_gene is root node and thus is considered to be active since it is not silenced
-			if (length(pa) == 0){
+			if (length(pa) == 0)
+			{
 				if (is.na(baseline[rem_gene])) base <- 0
 				else base <- baseline[rem_gene]
 				
@@ -230,11 +296,32 @@ calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k
 				if (is.na(baseline[rem_gene])) in_flow <- 0
 				else in_flow <- baseline[rem_gene]
 				
-				for(j in 1:length(pa)){
+				flagNA = 0
+				flagBreak = 0
+				
+				for(j in 1:length(pa))
+				{
+					if (is.na(obs[pa[j],rem_k,rem_t-1])){
+						flagNA = 1
+						
+						if (adja[pa[j],rem_gene] < 0 & act_mat[pa[j], rem_k]==1){
+							predict <- NA
+							flagBreak = 1
+							break 
+						}
+					}
 					in_flow <- sum(in_flow,(adja[pa[j],rem_gene]*obs[pa[j],rem_k,rem_t-1]),na.rm=T)
 				}
+				
+				if (flagBreak==1) next
+				
+				if (flagNA == 1 & in_flow < delta[rem_gene,rem_t]){
+					predict <- NA
+					next
+				}
+				
 				if(in_flow >= delta[rem_gene,rem_t]){
-					predict <- rnorm(1,active_mu[rem_gene,rem_t],active_sd[rem_gene,rem_t])
+					predict <- rnorm(1,active_mu[rem_gene,rem_t],active_sd[rem_gene,rem_t]) 
 				}
 				else{
 					predict <- rnorm(1,inactive_mu[rem_gene,rem_t],inactive_sd[rem_gene,rem_t])
@@ -251,7 +338,8 @@ calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k
 		else{
 			pa <- which(adja[,rem_gene]!=0)
 			# if there are no parents: rem_gene is root node and thus is considered to be active since it is not silenced
-			if (length(pa) == 0){
+			if (length(pa) == 0)
+			{
 				if (is.na(baseline[rem_gene])) base <- 0
 				else base <- baseline[rem_gene]
 				
@@ -266,14 +354,35 @@ calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k
 				if (is.na(baseline[rem_gene])) in_flow <- 0
 				else in_flow <- baseline[rem_gene]
 				
-				for(j in 1:length(pa)){
+				flagNA = 0
+				flagBreak = 0
+				
+				for(j in 1:length(pa))
+				{
+					if (is.na(obs[pa[j],rem_k,rem_t-1])){
+						flagNA = 1
+						
+						if (adja[pa[j],rem_gene] < 0 & act_mat[pa[j], rem_k]==1){
+							predict <- NA
+							flagBreak = 1
+							break 
+						}
+					}
 					in_flow <- sum(in_flow,(adja[pa[j],rem_gene]*obs[pa[j],rem_k,rem_t-1]),na.rm=T)
 				}
-				if(in_flow >= delta[rem_gene, rem_k,rem_t]){
-					predict <- rnorm(1,active_mu[rem_gene, rem_k,rem_t],active_sd[rem_gene, rem_k,rem_t])
+				
+				if (flagBreak==1) next
+				
+				if (flagNA == 1 & in_flow < delta[rem_gene,rem_k,rem_t]){
+					predict <- NA
+					next
+				}
+				
+				if(in_flow >= delta[rem_gene,rem_k,rem_t]){
+					predict <- rnorm(1,active_mu[rem_gene, rem_k, rem_t],active_sd[rem_gene, rem_k, rem_t]) 
 				}
 				else{
-					predict <- rnorm(1,inactive_mu[rem_gene, rem_k,rem_t],inactive_sd[rem_gene, rem_k,rem_t])
+					predict <- rnorm(1,inactive_mu[rem_gene, rem_k, rem_t],inactive_sd[rem_gene, rem_k, rem_t])
 				}
 			}
 		}
@@ -290,7 +399,7 @@ calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k
 calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k, rem_t,active_mu,active_sd,inactive_mu,inactive_sd,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE)
 {
 	# activation matrix is the same regardless of time point
-	act_mat <- calcActivation(adja,b,n,K)
+	act_mat <- calcActivation_dyn(adja,b,n,K)
 	inact_entries = which(act_mat==0, arr.ind=T) # returns (i,k)
 	
 	res=vecMatch(c(rem_gene, rem_k), inact_entries)
@@ -298,13 +407,14 @@ calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, 
 	
 	if (muPgene==F & muPgk==F & muPgt==F & muPgkt==F){
 		# if the removed entry is an inactive node due to some knockdown, then predict as inactive
-		if (any(res)==TRUE){
+		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu,inactive_sd)
 		}
 		else{
 			pa <- which(adja[,rem_gene]!=0)
 			# if there are no parents: rem_gene is root node and thus is considered to be active since it is not silenced
-			if (length(pa) == 0){
+			if (length(pa) == 0)
+			{
 				if (is.na(baseline[rem_gene])) base <- 0
 				else base <- baseline[rem_gene]
 				
@@ -319,11 +429,31 @@ calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, 
 				if (is.na(baseline[rem_gene])) in_flow <- 0
 				else in_flow <- baseline[rem_gene]
 				
-				for(j in 1:length(pa)){
-					if (!is.na(obs[pa[j],rem_k,rem_t-1]) &  (obs[pa[j],rem_k,rem_t-1]>= delta[pa[j]])){
+				flagNA = 0
+				flagBreak = 0
+				
+				for(j in 1:length(pa))
+				{
+					if (is.na(obs[pa[j],rem_k,rem_t-1])){
+						flagNA = 1
+						
+						if (adja[pa[j],rem_gene] < 0 & act_mat[pa[j], rem_k]==1){
+							predict <- NA
+							flagBreak = 1
+							break 
+						}
+					}
+					else if (obs[pa[j],rem_k,rem_t-1]>= delta[pa[j]]){
 						in_flow <- sum(in_flow,(adja[pa[j],rem_gene]*obs[pa[j],rem_k,rem_t-1]),na.rm=T)
 					}
 				}
+				
+				if (flagBreak==1) next
+				
+				if (flagNA == 1 & in_flow < delta[rem_gene]){
+					predict <- NA
+					next
+				}			
 				
 				if(in_flow >= delta[rem_gene]){
 					predict <- rnorm(1,active_mu,active_sd)
@@ -336,13 +466,14 @@ calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, 
 	}
 	# if there is an in/active_mu/sd per gene
 	else if(muPgene==T){
-		if (any(res)==TRUE){
+		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu[rem_gene],inactive_sd[rem_gene])
 		}
 		else{
 			pa <- which(adja[,rem_gene]!=0)
 			# if there are no parents: rem_gene is root node and thus is considered to be active since it is not silenced
-			if (length(pa) == 0){
+			if (length(pa) == 0)
+			{
 				if (is.na(baseline[rem_gene])) base <- 0
 				else base <- baseline[rem_gene]
 				
@@ -357,13 +488,34 @@ calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, 
 				if (is.na(baseline[rem_gene])) in_flow <- 0
 				else in_flow <- baseline[rem_gene]
 				
-				for(j in 1:length(pa)){
-					if (!is.na(obs[pa[j],rem_k,rem_t-1]) &  (obs[pa[j],rem_k,rem_t-1]>= delta[pa[j]])){
+				flagNA = 0
+				flagBreak = 0
+				
+				for(j in 1:length(pa))
+				{
+					if (is.na(obs[pa[j],rem_k,rem_t-1])){
+						flagNA = 1
+						
+						if (adja[pa[j],rem_gene] < 0 & act_mat[pa[j], rem_k]==1){
+							predict <- NA
+							flagBreak = 1
+							break 
+						}
+					}
+					else if (obs[pa[j],rem_k,rem_t-1]>= delta[pa[j]]){
 						in_flow <- sum(in_flow,(adja[pa[j],rem_gene]*obs[pa[j],rem_k,rem_t-1]),na.rm=T)
 					}
 				}
+				
+				if (flagBreak==1) next
+				
+				if (flagNA == 1 & in_flow < delta[rem_gene]){
+					predict <- NA
+					next
+				}			
+				
 				if(in_flow >= delta[rem_gene]){
-					predict <- rnorm(1,active_mu[rem_gene],active_sd[rem_gene])
+					predict <- rnorm(1,active_mu[rem_gene],active_sd[rem_gene]) 
 				}
 				else{
 					predict <- rnorm(1,inactive_mu[rem_gene],inactive_sd[rem_gene])
@@ -374,13 +526,14 @@ calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, 
 	# if there is an in/active_mu/sd and delta per gene per knockdown exp
 	else if(muPgk==T){
 		# if the removed entry is an inactive node due to some knockdown, then predict as inactive
-		if (any(res)==TRUE){
+		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu[rem_gene,rem_k],inactive_sd[rem_gene,rem_k])
 		}
 		else{
 			pa <- which(adja[,rem_gene]!=0)
 			# if there are no parents: rem_gene is root node and thus is considered to be active since it is not silenced
-			if (length(pa) == 0){
+			if (length(pa) == 0)
+			{
 				if (is.na(baseline[rem_gene])) base <- 0
 				else base <- baseline[rem_gene]
 				
@@ -395,11 +548,32 @@ calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, 
 				if (is.na(baseline[rem_gene])) in_flow <- 0
 				else in_flow <- baseline[rem_gene]
 				
-				for(j in 1:length(pa)){
-					if (!is.na(obs[pa[j],rem_k,rem_t-1]) &  (obs[pa[j],rem_k,rem_t-1]>= delta[pa[j],rem_k])){
+				flagNA = 0
+				flagBreak = 0
+				
+				for(j in 1:length(pa))
+				{
+					if (is.na(obs[pa[j],rem_k,rem_t-1])){
+						flagNA = 1
+						
+						if (adja[pa[j],rem_gene] < 0 & act_mat[pa[j], rem_k]==1){
+							predict <- NA
+							flagBreak = 1
+							break 
+						}
+					}
+					else if (obs[pa[j],rem_k,rem_t-1]>= delta[pa[j],rem_k]){
 						in_flow <- sum(in_flow,(adja[pa[j],rem_gene]*obs[pa[j],rem_k,rem_t-1]),na.rm=T)
 					}
 				}
+				
+				if (flagBreak==1) next
+				
+				if (flagNA == 1 & in_flow < delta[rem_gene,rem_k]){
+					predict <- NA
+					next
+				}			
+				
 				if(in_flow >= delta[rem_gene,rem_k]){
 					predict <- rnorm(1,active_mu[rem_gene,rem_k],active_sd[rem_gene,rem_k])
 				}
@@ -412,13 +586,14 @@ calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, 
 	# if there is an in/active_mu/sd and delta per gene per time point
 	else if(muPgt==T){
 		# if the removed entry is an inactive node due to some knockdown, then predict as inactive
-		if (any(res)==TRUE){
+		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu[rem_gene,rem_t],inactive_sd[rem_gene,rem_t])
 		}
 		else{
 			pa <- which(adja[,rem_gene]!=0)
 			# if there are no parents: rem_gene is root node and thus is considered to be active since it is not silenced
-			if (length(pa) == 0){
+			if (length(pa) == 0)
+			{
 				if (is.na(baseline[rem_gene])) base <- 0
 				else base <- baseline[rem_gene]
 				
@@ -433,11 +608,32 @@ calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, 
 				if (is.na(baseline[rem_gene])) in_flow <- 0
 				else in_flow <- baseline[rem_gene]
 				
-				for(j in 1:length(pa)){
-					if (!is.na(obs[pa[j],rem_k,rem_t-1]) &  (obs[pa[j],rem_k,rem_t-1]>= delta[pa[j],rem_t-1])){
+				flagNA = 0
+				flagBreak = 0
+				
+				for(j in 1:length(pa))
+				{
+					if (is.na(obs[pa[j],rem_k,rem_t-1])){
+						flagNA = 1
+						
+						if (adja[pa[j],rem_gene] < 0 & act_mat[pa[j], rem_k]==1){
+							predict <- NA
+							flagBreak = 1
+							break 
+						}
+					}
+					else if (obs[pa[j],rem_k,rem_t-1]>= delta[pa[j],rem_t-1]){
 						in_flow <- sum(in_flow,(adja[pa[j],rem_gene]*obs[pa[j],rem_k,rem_t-1]),na.rm=T)
 					}
 				}
+				
+				if (flagBreak==1) next
+				
+				if (flagNA == 1 & in_flow < delta[rem_gene,rem_t]){
+					predict <- NA
+					next
+				}			
+				
 				if(in_flow >= delta[rem_gene,rem_t]){
 					predict <- rnorm(1,active_mu[rem_gene,rem_t],active_sd[rem_gene,rem_t])
 				}
@@ -450,13 +646,14 @@ calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, 
 	# if there is an in/active_mu/sd and delta per gene per knockdown exp per time point
 	else if (muPgkt == T){
 		# if the removed entry is an inactive node due to some knockdown, then predict as inactive
-		if (any(res)==TRUE){
+		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu[rem_gene, rem_k,rem_t],inactive_sd[rem_gene, rem_k,rem_t])
 		}
 		else{
 			pa <- which(adja[,rem_gene]!=0)
 			# if there are no parents: rem_gene is root node and thus is considered to be active since it is not silenced
-			if (length(pa) == 0){
+			if (length(pa) == 0)
+			{
 				if (is.na(baseline[rem_gene])) base <- 0
 				else base <- baseline[rem_gene]
 				
@@ -471,16 +668,37 @@ calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, 
 				if (is.na(baseline[rem_gene])) in_flow <- 0
 				else in_flow <- baseline[rem_gene]
 				
-				for(j in 1:length(pa)){
-					if (!is.na(obs[pa[j],rem_k,rem_t-1]) &  (obs[pa[j],rem_k,rem_t-1]>= delta[pa[j], rem_k,rem_t-1])){
+				flagNA = 0
+				flagBreak = 0
+				
+				for(j in 1:length(pa))
+				{
+					if (is.na(obs[pa[j],rem_k,rem_t-1])){
+						flagNA = 1
+						
+						if (adja[pa[j],rem_gene] < 0 & act_mat[pa[j], rem_k]==1){
+							predict <- NA
+							flagBreak = 1
+							break 
+						}
+					}
+					else if (obs[pa[j],rem_k,rem_t-1]>= delta[pa[j],rem_k,rem_t-1]){
 						in_flow <- sum(in_flow,(adja[pa[j],rem_gene]*obs[pa[j],rem_k,rem_t-1]),na.rm=T)
 					}
 				}
-				if(in_flow >= delta[rem_gene, rem_k,rem_t]){
-					predict <- rnorm(1,active_mu[rem_gene, rem_k,rem_t],active_sd[rem_gene, rem_k,rem_t])
+				
+				if (flagBreak==1) next
+				
+				if (flagNA == 1 & in_flow < delta[rem_gene,rem_k,rem_t]){
+					predict <- NA
+					next
+				}			
+				
+				if(in_flow >= delta[rem_gene,rem_k,rem_t]){
+					predict <- rnorm(1,active_mu[rem_gene, rem_k, rem_t],active_sd[rem_gene, rem_k, rem_t]) 
 				}
 				else{
-					predict <- rnorm(1,inactive_mu[rem_gene, rem_k,rem_t],inactive_sd[rem_gene, rem_k,rem_t])
+					predict <- rnorm(1,inactive_mu[rem_gene, rem_k, rem_t],inactive_sd[rem_gene, rem_k, rem_t])
 				}
 			}
 		}
@@ -492,6 +710,13 @@ calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, 
 	
 	
 vecMatch <- function(vec, mat) {
-	out <- apply(mat, 1, function(mat, vec) isTRUE(all.equal(mat, vec)), vec)
-	return(out)
+
+	krows = which(mat[,2]==vec[2])
+
+	if (length(krows>0)){
+		for (row_ in krows){
+			if (all(mat[row_, ] ==vec)) return(TRUE)
+		}
+	}
+	return(FALSE)
 }
