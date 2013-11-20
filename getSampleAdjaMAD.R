@@ -1,3 +1,8 @@
+#
+# sum up all inferred networks into a single one using method.
+#  only edges whose "method2" (eg. mad) is greater than its "method" 
+#  (e.g. median) will be included in the final network
+#
 getSampleAdjaMAD <- function(edges_all,numnodes,annot_node,method=median,method2=mad,method2Times=1,septype="->")
 {
 

@@ -1,3 +1,6 @@
+#
+# sum up all inferred networks into a single one using "method"
+#
 getSampleAdja <-
 function(edges_all,numnodes,annot_node,method=median,septype="->")
 {

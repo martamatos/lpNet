@@ -56,7 +56,7 @@ function(function_,predFunction,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,an
 
 
 
-loocv_dyn <-function(function_,predFunction,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
+loocv_dyn <-function(function_,predFunction,getAdja_function, getBaseline_function,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
 {
 
   # elements to leave out (each element at least once)
@@ -86,9 +86,9 @@ loocv_dyn <-function(function_,predFunction,kfold=NULL,times,obs,n,b,K,delta,lam
 		if(!is.na(ele)){
 			## do ILP
 			res <- function_(obs=obs_modified,delta=delta,lambda=lambda,b=b,n=n,K=K,T_=T_,annot,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
-			
-			adja <- getAdja(res,n)
-			baseline <- getBaseline(res,n=n)
+
+			adja <- getAdja_function(res$res,n)
+			baseline <- getBaseline_function(res$res,n=n)
 			res <- NA
 			
 			for(i in 1:times){
@@ -103,8 +103,7 @@ loocv_dyn <-function(function_,predFunction,kfold=NULL,times,obs,n,b,K,delta,lam
 			sq_err <- c(sq_err,mean(sq_err_tmp,na.rm=T))
 		}
 	}
-#   adja_mu <- adja_sum/(times*dim(looc)[1])
-#   adja_prob <- adja_num/(times*dim(looc)[1])
+
   tmp1 <- rep(annot_node,rep(n,n))
   tmp2 <- rep(annot_node,n)
   id_selfloop <- which(tmp1==tmp2)
@@ -112,6 +111,6 @@ loocv_dyn <-function(function_,predFunction,kfold=NULL,times,obs,n,b,K,delta,lam
   edges_all <- edges_all[,-id_selfloop]
   colnames(edges_all) <- tmp[-id_selfloop]
   MSE <- mean(sq_err,na.rm=T)
-  
+
   return(list(MSE=MSE,edges_all=edges_all, baseline_all=baseline_all))
 }

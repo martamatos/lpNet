@@ -85,7 +85,7 @@ function(function_,predFunction,kfold,times,obs,n,b,K,delta,lambda,annot,annot_n
 
 
 
-kfoldCV_dyn <-function(function_,predFunction,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
+kfoldCV_dyn <-function(function_,predFunction,getAdja_function, getBaseline_function,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
 {
 
   # define k-fold groups: stratified
@@ -167,8 +167,8 @@ kfoldCV_dyn <-function(function_,predFunction,kfold,times,obs,n,b,K,delta,lambda
 			## do ILP
 			res <- function_(obs=obs_modified,delta=delta,lambda=lambda,b=b,n=n,K=K,T_=T_,annot,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
 
-			adja <- getAdja(res,n)
-			baseline <- getBaseline(res,n=n)
+			adja <- getAdja_function(res,n)
+			baseline <- getBaseline_function(res,n=n)
 			## calculate statistics on learned edges
 			edges_all <- rbind(edges_all,c(t(adja)))
 			baseline_all <- rbind(baseline_all, baseline)
@@ -194,3 +194,4 @@ kfoldCV_dyn <-function(function_,predFunction,kfold,times,obs,n,b,K,delta,lambda
   
   return(list(MSE=MSE,edges_all=edges_all,baseline_all=baseline_all))
 }
+
