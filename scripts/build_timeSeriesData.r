@@ -15,7 +15,7 @@ getNTimePoints = function(nw_und,nodeNames,n,K)
 	rootNodes = parentNodes
 	nonRootNodes = which(!(seq(1,n) %in% rootNodes))
 	
-#	print(paste("rootNodes ", rootNodes))
+	print(paste("rootNodes ", rootNodes))
 	
 	
 	activeNW_temp = matrix(0, nrow=n, ncol=n)
@@ -79,9 +79,9 @@ getNTimePoints = function(nw_und,nodeNames,n,K)
 	return(length(geneState))
 }
 
-build_timeSeriesData = function(nw_und,nodeNames,b,n,K)
+build_timeSeries = function(nw_und,nodeNames,b,n,K)
 {
-	
+
 	T_ = getNTimePoints(nw_und,nodeNames,n,1)
 	
 	act_mat = calcActivation_dyn(nw_und,b,n,K)				
@@ -195,8 +195,8 @@ build_timeSeriesData = function(nw_und,nodeNames,b,n,K)
 }
 
 
-#source("/home/dx/Dropbox/DX/Thesis/lpNet_3.1/R/calcActivation.R")
-#source("/home/dx/Dropbox/DX/Thesis/otherCodes/getDdepnNets_inhib.r")
+#source("/home/dx//Thesis/lpNet_Code/src/calcActivation.R")
+##source("/home/dx/Dropbox/DX/Thesis/otherCodes/getDdepnNets_inhib.r")
 
 #### data/graph7 from n=10 networks
 ##n=10
@@ -290,7 +290,7 @@ build_timeSeriesData = function(nw_und,nodeNames,b,n,K)
 #timeSeriesData = build_timeSeriesData(T_undNet, nodeNames,bvec,n,K)
 
 
-#print("pos chamada")
+##print("pos chamada")
 ###T_ = timeSeriesData2$T_
 ###print(paste("time points ", T_, sep=""))
 ###print(act_mat)
@@ -299,5 +299,7 @@ build_timeSeriesData = function(nw_und,nodeNames,b,n,K)
 ###load(file="net03_geneState.Rdata")
 
 ###print(any(timeSeriesData2$geneStateVec == timeSeriesData$geneStateVec) == FALSE)
-#print(timeSeriesData$geneStateVec)
+##print(timeSeriesData$geneStateVec)
 ###print(timeSeriesData2$geneStateVec)
+
+

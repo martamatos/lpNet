@@ -1,4 +1,4 @@
-bootstrap_dyn <-function(function_,predFunction=NULL,getAdja_function, getBaseline_function,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu=NULL,active_sd=NULL,inactive_mu=NULL,inactive_sd=NULL,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
+bootstrap_dyn <-function(function_,predFunction=NULL,getAdja_function, getBaseline_function,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
 {
 	sq_err_all <- vector()
 
@@ -10,7 +10,7 @@ bootstrap_dyn <-function(function_,predFunction=NULL,getAdja_function, getBaseli
 		#bootstrap replicates
 		obs_modified = apply(obs, c(1,2,3), boot_mean)
 		
-		## solve LP problem
+		# solve LP problem
 		res <- function_(obs=obs_modified,delta=delta,lambda=lambda,b=b,n=n,K=K,T_=T_,annot,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
 
 		#get adjacency matrix and baseline values
@@ -19,10 +19,15 @@ bootstrap_dyn <-function(function_,predFunction=NULL,getAdja_function, getBaseli
 
 		edges_all <- rbind(edges_all,c(t(adja)))
 		baseline_all <- rbind(baseline_all, baseline)
-	
-		# calculate the squared error between the bootstraped observation matrix 
-		#  and the original obs matrix averaged over the replicates
-		sq_err_all <- rbind(sq_err_all,c((obs_modified-apply(obs, c(1,2,3), mean))^2))
+		
+		act_mat = calcActivation(adja, b, n, K)
+		obs_inferred = getObsMat(act_mat,active_mu,active_sd,inactive_mu,inactive_sd)
+		
+		# calculate the squared error between the original obs matrix at t=T
+		#  averaged over the replicates and the obs matrix generated from
+		#  the inferred network at t=T 
+		sq_err_all <- rbind(sq_err_all,c((obs_inferred-apply(obs[,,T_,], c(1,2), mean))^2))
+
   } # end iter
 
   sq_err <- apply(sq_err_all,2,mean,na.rm=T)
