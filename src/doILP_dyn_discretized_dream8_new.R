@@ -1,5 +1,5 @@
 doILP_dyn_discretized_dream8_new <-
-function(obs,delta,lambda,b,n,K,T_,annot,prior=NULL,sourceNode=NULL,sinkNode=NULL,all.int=FALSE,all.pos=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
+function(obs,delta,lambda,b,n,K,T_,annot,prior=NULL,sourceNode=NULL,sinkNode=NULL,all.int=FALSE,all.pos=FALSE,delta_type)
 {
 
 	nConstr = n*K*(T_-1)
@@ -18,7 +18,7 @@ function(obs,delta,lambda,b,n,K,T_,annot,prior=NULL,sourceNode=NULL,sinkNode=NUL
   count <- 1
   slack_var <- rep(FALSE,nConstr) # TRUE if the sign of equation is changed
   
-  if(deltaPk==F & deltaPt==F & deltaPkt==F){
+  if(delta_type == "perGene"){
   
 		if(all.int){
 			delta <- rep(1,n)
@@ -30,7 +30,7 @@ function(obs,delta,lambda,b,n,K,T_,annot,prior=NULL,sourceNode=NULL,sinkNode=NUL
 					if(b[(k-1)*n + i]==1){
 						# if the observation=NA, just do nothing
 						if(!is.na(obs[i,k,t])){
-							# if observation of gene i after knockdown k is acitve
+							# if observation of gene i after knockdown k is active
 							if(obs[i,k,t]>= delta[i]){
 								slack_var[count] <- TRUE # what's this variable for?
 								# set offset parameter (baseline of gene i)
@@ -134,7 +134,7 @@ function(obs,delta,lambda,b,n,K,T_,annot,prior=NULL,sourceNode=NULL,sinkNode=NUL
 			} # end k
 		} # end t
 	}
-	else if(deltaPk==T){
+	else if( delta_type == "perGeneExp"){
   
 		if(all.int){
 			delta <- matrix(rep(1,n*K), nrow=n, ncol=K)
@@ -250,7 +250,7 @@ function(obs,delta,lambda,b,n,K,T_,annot,prior=NULL,sourceNode=NULL,sinkNode=NUL
 			} # end k
 		} # end t
 	}
-	else if(deltaPt==T){
+	else if( delta_type == "perGeneTime"){
   
 		if(all.int){
 			delta <- matrix(rep(1,n*T_), nrow=n, ncol=T_)
@@ -366,7 +366,7 @@ function(obs,delta,lambda,b,n,K,T_,annot,prior=NULL,sourceNode=NULL,sinkNode=NUL
 			} # end k
 		} # end t
 	}
-	else if(deltaPkt==T){
+	else if( delta_type == "perGeneExpTime"){
   
 		if(all.int){
 			delta <- array(rep(1,n*K*T_), c(n,K,T_))

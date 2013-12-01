@@ -1,5 +1,5 @@
 kfoldCV_LP <-
-function(function_,predFunction,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_=NULL,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
+function(function_,predFunction,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_=NULL,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,mu_type,delta_type)
 {
   # define k-fold groups: stratified
   obs_kfold <- list()
@@ -52,7 +52,7 @@ function(function_,predFunction,kfold,times,obs,n,b,K,delta,lambda,annot,annot_n
 			
 			
 			## do ILP
-			res <- function_(obs=obs_modified,delta=delta,lambda=lambda,b=b,n=n,K=K,T_=T_,annot,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
+			res <- function_(obs=obs_modified,delta=delta,lambda=lambda,b=b,n=n,K=K,T_=T_,annot,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos,delta_type=delta_type)
 		
 			adja <- getAdja(res,n)
 			baseline <- getBaseline(res,n=n)
@@ -61,7 +61,7 @@ function(function_,predFunction,kfold,times,obs,n,b,K,delta,lambda,annot,annot_n
 			baseline_all <- rbind(baseline_all, baseline)
 			
 			## calculate mean squared error of predicted and observed
-			predict <- predFunction(b=b,n=n,K=K,adja=adja,baseline=baseline,obs=obs_modified,delta=delta,rem_entries=rem_entries,rem_entries_vec=rem_entries_vec,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk)
+			predict <- predFunction(b=b,n=n,K=K,adja=adja,baseline=baseline,obs=obs_modified,delta=delta,rem_entries=rem_entries,rem_entries_vec=rem_entries_vec,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,mu_type=mu_type)
 			
 			ids_rem <- which(is.na(obs_modified))
 			sq_err_tmp <- c(sq_err_tmp,((predict[ids_rem]-obs[ids_rem])^2))
@@ -85,7 +85,7 @@ function(function_,predFunction,kfold,times,obs,n,b,K,delta,lambda,annot,annot_n
 
 
 
-kfoldCV_dyn <-function(function_,predFunction,getAdja_function, getBaseline_function,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
+kfoldCV_dyn <-function(function_,predFunction,getAdja_function, getBaseline_function,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,mu_type,delta_type)
 {
 
   # define k-fold groups: stratified
@@ -165,16 +165,16 @@ kfoldCV_dyn <-function(function_,predFunction,getAdja_function, getBaseline_func
 
 			
 			## do ILP
-			res <- function_(obs=obs_modified,delta=delta,lambda=lambda,b=b,n=n,K=K,T_=T_,annot,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
+			res <- function_(obs=obs_modified,delta=delta,lambda=lambda,b=b,n=n,K=K,T_=T_,annot,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos,delta_type=delta_type)
 
-			adja <- getAdja_function(res,n)
-			baseline <- getBaseline_function(res,n=n)
+			adja <- getAdja_function(res$res,n)
+			baseline <- getBaseline_function(res$res,n=n)
 			## calculate statistics on learned edges
 			edges_all <- rbind(edges_all,c(t(adja)))
 			baseline_all <- rbind(baseline_all, baseline)
 			
 			## calculate mean squared error of predicted and observed
-			predict <- predFunction(b=b,n=n,K=K,adja=adja,baseline=baseline,obs=obs_modified,delta=delta,rem_entries=rem_entries,rem_entries_vec=rem_entries_vec,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk,muPgt=muPgt,muPgkt=muPgkt)
+			predict <- predFunction(b=b,n=n,K=K,adja=adja,baseline=baseline,obs=obs_modified,delta=delta,rem_entries=rem_entries,rem_entries_vec=rem_entries_vec,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,mu_type=mu_type)
 
 #			ids_rem <- which(is.na(obs_modified))
 			ids_rem <- rem_entries_vec

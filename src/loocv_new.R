@@ -1,5 +1,5 @@
 loocv_LP <-
-function(function_,predFunction,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,annot_node,T_=NULL,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
+function(function_,predFunction,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,annot_node,T_=NULL,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,mu_type,delta_type)
 {
 	
   # elements to leave out (each element at least once)
@@ -21,7 +21,7 @@ function(function_,predFunction,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,an
 		# mache nur, wenn der datenpunkt nicht eh schon NA ist
 		if(!is.na(ele)){
 			## do ILP
-			res <- function_(obs=obs_modified,delta=delta,lambda=lambda,b=b,n=n,K=K,T_=T_,annot,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
+			res <- function_(obs=obs_modified,delta=delta,lambda=lambda,b=b,n=n,K=K,T_=T_,annot,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos,delta_type=delta_type)
 						
 			adja <- getAdja(res,n)
 			baseline <- getBaseline(res,n=n)
@@ -29,7 +29,7 @@ function(function_,predFunction,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,an
 			
 			for(i in 1:times){
 				## calculate mean squared error of predicted and observed
-				predict <- predFunction(b=b,n=n,K=K,adja=adja,baseline=baseline,obs=obs_modified,delta=delta,rem_gene=rem_gene, rem_k=rem_kd,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk)
+				predict <- predFunction(b=b,n=n,K=K,adja=adja,baseline=baseline,obs=obs_modified,delta=delta,rem_gene=rem_gene, rem_k=rem_kd,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,mu_type=mu_type)
 				sq_err_tmp <- c(sq_err_tmp,((predict-ele)^2))
 			}
 			
@@ -56,7 +56,7 @@ function(function_,predFunction,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,an
 
 
 
-loocv_dyn <-function(function_,predFunction,getAdja_function, getBaseline_function,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
+loocv_dyn <-function(function_,predFunction,getAdja_function, getBaseline_function,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,mu_type,delta_type)
 {
 
   # elements to leave out (each element at least once)
@@ -85,7 +85,7 @@ loocv_dyn <-function(function_,predFunction,getAdja_function, getBaseline_functi
 		# mache nur, wenn der datenpunkt nicht eh schon NA ist
 		if(!is.na(ele)){
 			## do ILP
-			res <- function_(obs=obs_modified,delta=delta,lambda=lambda,b=b,n=n,K=K,T_=T_,annot,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos,deltaPk=deltaPk,deltaPt=deltaPt,deltaPkt=deltaPkt)
+			res <- function_(obs=obs_modified,delta=delta,lambda=lambda,b=b,n=n,K=K,T_=T_,annot,prior=prior,sourceNode=sourceNode,sinkNode=sinkNode,all.int=allint,all.pos=allpos,delta_type=delta_type)
 
 			adja <- getAdja_function(res$res,n)
 			baseline <- getBaseline_function(res$res,n=n)
@@ -93,7 +93,7 @@ loocv_dyn <-function(function_,predFunction,getAdja_function, getBaseline_functi
 			
 			for(i in 1:times){
 				## calculate mean squared error of predicted and observed
-				predict <- predFunction(b=b,n=n,K=K,adja=adja,baseline=baseline,obs=obs_modified,delta=delta,rem_gene=rem_gene, rem_k=rem_kd, rem_t=rem_t,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,muPgene=muPgene,muPgk=muPgk,muPgt=muPgt,muPgkt=muPgkt)
+				predict <- predFunction(b=b,n=n,K=K,adja=adja,baseline=baseline,obs=obs_modified,delta=delta,rem_gene=rem_gene, rem_k=rem_kd, rem_t=rem_t,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,mu_type=mu_type)
 				sq_err_tmp <- c(sq_err_tmp,((predict-ele)^2))
 			}
 			

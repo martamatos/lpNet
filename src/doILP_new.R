@@ -1,5 +1,5 @@
 doILP_new <-
-function(obs,delta,lambda,b,n,K,T_=NULL,annot,prior=NULL,sourceNode=NULL,sinkNode=NULL,all.int=FALSE,all.pos=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
+function(obs,delta,lambda,b,n,K,T_=NULL,annot,prior=NULL,sourceNode=NULL,sinkNode=NULL,all.int=FALSE,all.pos=FALSE,delta_type)
 {
   if(all.int){
 		delta <- rep(1,n)
@@ -19,7 +19,7 @@ function(obs,delta,lambda,b,n,K,T_=NULL,annot,prior=NULL,sourceNode=NULL,sinkNod
   count <- 1
   slack_var <- rep(FALSE,K*n) # TRUE if the sign of equation is changed
   
-  if (deltaPk==F){
+  if (delta_type == "perGene"){
 		if(all.int){
 			delta <- rep(1,n)
 		}
@@ -90,7 +90,7 @@ function(obs,delta,lambda,b,n,K,T_=NULL,annot,prior=NULL,sourceNode=NULL,sinkNod
 			}
 		}
 	}
-  else if (deltaPk==T){
+  else if (delta_type == "perGeneExp"){
 		if(all.int){
 			delta <- matrix(rep(1,n*K), nrow=n, ncol=K)
 		}

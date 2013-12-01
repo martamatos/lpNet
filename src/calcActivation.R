@@ -144,6 +144,7 @@ function(T_nw,b,n,K)
 
 calcActivation_dyn <- function(T_nw,b,n,K)
 {
+
   kds <- matrix(b,nrow=n,ncol=K)
   activation_mat <- matrix(NA,nrow=n,ncol=K)
   

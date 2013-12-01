@@ -1,5 +1,5 @@
 library(RUnit)
-source("../../otherCodes/build_timeSeriesData.r")
+source("../scripts/build_timeSeriesData.r")
 source("../src/sourceDir.R")
 sourceDir("../src")
 

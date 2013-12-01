@@ -1,5 +1,8 @@
 options(digits=3)
 
+source("../scripts/build_timeSeriesData.r")
+source("../src/sourceDir.R")
+sourceDir("../src")
 
 test_bootstrap = function(){
 
@@ -57,32 +60,21 @@ test_bootstrap = function(){
 	bvec = c(1,1,1,
 					 1,0,1)
 	
-	timeSeriesData = build_timeSeriesData(T_undNet,nodeNames,bvec,n,K)
+	timeSeriesData = build_timeSeries(T_undNet,nodeNames,bvec,n,K)
+	print(timeSeriesData)
 	T_ = timeSeriesData$T_
 	geneState =timeSeriesData$geneStateVec
-	act_mat = calcActivation_dyn(T_undNet,bvec,n,K)
 	
+	act_mat = calcActivation(T_undNet,bvec,n,K)
+	print(act_mat)
+	
+	print(geneState)
 	sd_i = 1
 
 	# generate observation matrix and delta vector
 	obs = array(NA, c(n,K,T_, replnum))
 	tmp = c()
 	
-#	for (t in 1:T_){
-#		geneState_ = geneState[,,t]
-#		obs_all <-  vector()
-
-#		for(repl in 1:replnum)
-#		{
-#			obs_tmp <- getObsMat(act_mat,active_mu,sd_all[1],inactive_mu,sd_all[1],geneState_)
-#			obs[,,t,repl] = obs_tmp
-#			obs_all <- rbind(obs_all,c(obs_tmp))
-#			tmp <- cbind(tmp,rnorm(n,mean(c(active_mu,inactive_mu)),sd_all[1]))
-#		}
-#	}
-#	delta <- apply(tmp,1,mean,na.rm=T)
-
-	obs = array(NA, c(n,K,T_))
 	for (t in 1:T_){
 		geneState_ = geneState[,,t]
 		obs_all <-  vector()
@@ -90,21 +82,37 @@ test_bootstrap = function(){
 		for(repl in 1:replnum)
 		{
 			obs_tmp <- getObsMat(act_mat,active_mu,sd_all[1],inactive_mu,sd_all[1],geneState_)
+			obs[,,t,repl] = obs_tmp
 			obs_all <- rbind(obs_all,c(obs_tmp))
 			tmp <- cbind(tmp,rnorm(n,mean(c(active_mu,inactive_mu)),sd_all[1]))
 		}
-		obs[,,t] <- matrix(apply(obs_all,2,mean,na.rm=T),nrow=n,ncol=K)
 	}
 	delta <- apply(tmp,1,mean,na.rm=T)
+
+#	obs = array(NA, c(n,K,T_))
+#	for (t in 1:T_){
+#		geneState_ = geneState[,,t]
+#		obs_all <-  vector()
+
+#		for(repl in 1:replnum)
+#		{
+#			obs_tmp <- getObsMat(act_mat,active_mu,sd_all[1],inactive_mu,sd_all[1],geneState_)
+#			obs_all <- rbind(obs_all,c(obs_tmp))
+#			tmp <- cbind(tmp,rnorm(n,mean(c(active_mu,inactive_mu)),sd_all[1]))
+#		}
+#		obs[,,t] <- matrix(apply(obs_all,2,mean,na.rm=T),nrow=n,ncol=K)
+#	}
+#	delta <- apply(tmp,1,mean,na.rm=T)
 
 	print(obs)
 
 
-	res = bootstrap_dyn(function_=LPfunction_lpSolve,getAdja_function, getBaseline_function,predFunction=NULL,kfold=NULL,times=bootstrap_times,obs=obs,n=n,b=bvec,K=K,delta=delta,lambda=0.1,annot=annot,annot_node=annot_node,T_=T_,active_mu=NULL,active_sd=NULL,inactive_mu=NULL,inactive_sd=NULL,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
+	res = bootstrap_dyn(function_=LPfunction_lpSolve,getAdja_function, getBaseline_function,predFunction=NULL,kfold=NULL,times=bootstrap_times,obs=obs,n=n,b=bvec,K=K,delta=delta,lambda=0.1,annot=annot,annot_node=annot_node,T_=T_,active_mu=active_mu,active_sd=active_sd,inactive_mu=inactive_mu,inactive_sd=inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
 	
-	print(res)
+#	print(res)
 #	loocv_dyn(function_=LPfunction_lpSolve,predFunction=get("calcPredictionLOOCV_dyn_disc"),getAdja_function=getAdja_function, getBaseline_function=getBaseline_function,kfold=NULL,times=bootstrap_times,obs=obs,n=n,b=bvec,K=K,delta=delta,lambda=0.1,annot=annot,annot_node=annot_node,T_=T_,active_mu=active_mu,active_sd=sd_all[1],inactive_mu=inactive_mu,inactive_sd=sd_all[1],prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
 	
 #	(function_,predFunction=NULL,getAdja_function, getBaseline_function,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu=NULL,active_sd=NULL,inactive_mu=NULL,inactive_sd=NULL,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE,deltaPk=FALSE,deltaPt=FALSE,deltaPkt=FALSE)
 
 }
+test_bootstrap()

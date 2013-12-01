@@ -2,7 +2,7 @@
 # kfoldCV prediction for LP original
 #
 
-calcPredictionKfoldCV_LP <-function(b,n,K,adja,baseline,obs,delta,rem_entries,rem_entries_vec,active_mu,active_sd,inactive_mu,inactive_sd,muPgene=FALSE,muPgk=FALSE)
+calcPredictionKfoldCV_LP <-function(b,n,K,adja,baseline,obs,delta,rem_entries,rem_entries_vec,active_mu,active_sd,inactive_mu,inactive_sd,mu_type=NULL)
 {
   # which genes are silenced in removed observation
   act_mat <- calcActivation(adja,b,n,K)
@@ -16,7 +16,7 @@ calcPredictionKfoldCV_LP <-function(b,n,K,adja,baseline,obs,delta,rem_entries,re
 # kfoldCV prediction for not discretized model
 #
 
-calcPredictionKfoldCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_entries,rem_entries_vec,active_mu,active_sd,inactive_mu,inactive_sd,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE)
+calcPredictionKfoldCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_entries,rem_entries_vec,active_mu,active_sd,inactive_mu,inactive_sd,mu_type)
 {
 	# activation matrix is the same regardless of time point
 	act_mat <- calcActivation_dyn(adja,b,n,K)
@@ -24,7 +24,7 @@ calcPredictionKfoldCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_entries,r
 	predict = obs
 
 	if (dim(rem_entries)[1]>0){
-		if (muPgene==F & muPgk==F & muPgt==F & muPgkt==F){
+		if ( mu_type == "single"){
 		
 			for (ent in 1:dim(rem_entries)[1]){
 				rem_gene=rem_entries[ent,1]
@@ -93,7 +93,7 @@ calcPredictionKfoldCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_entries,r
 			}
 		}
 		
-		else if (muPgene==T){
+		else if ( mu_type == "perGene"){
 	
 			for (ent in 1:dim(rem_entries)[1]){
 				rem_gene=rem_entries[ent,1]
@@ -161,7 +161,7 @@ calcPredictionKfoldCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_entries,r
 				}
 			}
 		}
-		else if (muPgk==T){
+		else if (mu_type == "perGeneExp"){
 		
 			for (ent in 1:dim(rem_entries)[1]){
 				rem_gene=rem_entries[ent,1]
@@ -230,7 +230,7 @@ calcPredictionKfoldCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_entries,r
 			}
 		}
 		
-		else if (muPgt==T){
+		else if (mu_type == "perGeneTime"){
 		
 			for (ent in 1:dim(rem_entries)[1]){
 				rem_gene=rem_entries[ent,1]
@@ -298,7 +298,7 @@ calcPredictionKfoldCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_entries,r
 			}
 		}
 		
-		else if (muPgkt==T){
+		else if (mu_type == "perGeneExpTime"){
 		
 			for (ent in 1:dim(rem_entries)[1]){
 				rem_gene=rem_entries[ent,1]
@@ -375,7 +375,7 @@ calcPredictionKfoldCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_entries,r
 #
 # kfoldCV prediction for half discretized model
 #
-calcPredictionKfoldCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_entries,rem_entries_vec,active_mu,active_sd,inactive_mu,inactive_sd,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE)
+calcPredictionKfoldCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_entries,rem_entries_vec,active_mu,active_sd,inactive_mu,inactive_sd,mu_type)
 {
 	# activation matrix is the same regardless of time point
 	act_mat <- calcActivation_dyn(adja,b,n,K)
@@ -383,7 +383,7 @@ calcPredictionKfoldCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_entr
 	predict = obs
 
 	if (dim(rem_entries)[1]>0){
-		if (muPgene==F & muPgk==F & muPgt==F & muPgkt==F){
+		if ( mu_type == "single"){
 		
 			for (ent in 1:dim(rem_entries)[1]){
 				rem_gene=rem_entries[ent,1]
@@ -453,7 +453,7 @@ calcPredictionKfoldCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_entr
 			}
 		}
 		
-		else if (muPgene==T){
+		else if (mu_type == "perGene"){
 
 			for (ent in 1:dim(rem_entries)[1]){
 				rem_gene=rem_entries[ent,1]
@@ -523,7 +523,7 @@ calcPredictionKfoldCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_entr
 				}
 			}
 		}
-		else if (muPgk==T){
+		else if (mu_type == "perGeneExp"){
 		
 			for (ent in 1:dim(rem_entries)[1]){
 				rem_gene=rem_entries[ent,1]
@@ -594,7 +594,7 @@ calcPredictionKfoldCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_entr
 			}
 		}
 		
-		else if (muPgt==T){
+		else if (mu_type == "perGeneTime"){
 		
 			for (ent in 1:dim(rem_entries)[1]){
 				rem_gene=rem_entries[ent,1]
@@ -664,7 +664,7 @@ calcPredictionKfoldCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_entr
 			}
 		}
 		
-		else if (muPgkt==T){
+		else if (mu_type == "perGeneExpTime"){
 		
 			for (ent in 1:dim(rem_entries)[1]){
 				rem_gene=rem_entries[ent,1]
@@ -741,7 +741,7 @@ calcPredictionKfoldCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_entr
 #
 # kfoldCV prediction for half discretized model
 #
-calcPredictionKfoldCV_dyn_disc_dream8 <-function(b,n,K,adja,baseline,obs,delta,rem_entries,rem_entries_vec,active_mu,active_sd,inactive_mu,inactive_sd,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE)
+calcPredictionKfoldCV_dyn_disc_dream8 <-function(b,n,K,adja,baseline,obs,delta,rem_entries,rem_entries_vec,active_mu,active_sd,inactive_mu,inactive_sd,mu_type)
 {
 	# activation matrix is the same regardless of time point
 	act_mat <- calcActivation_dyn(adja,b,n,K)
@@ -749,7 +749,7 @@ calcPredictionKfoldCV_dyn_disc_dream8 <-function(b,n,K,adja,baseline,obs,delta,r
 	predict = obs
 
 	if (dim(rem_entries)[1]>0){
-		if (muPgene==F & muPgk==F & muPgt==F & muPgkt==F){
+		if ( mu_type == "single"){
 		
 			for (ent in 1:dim(rem_entries)[1]){
 				rem_gene=rem_entries[ent,1]
@@ -819,7 +819,7 @@ calcPredictionKfoldCV_dyn_disc_dream8 <-function(b,n,K,adja,baseline,obs,delta,r
 			}
 		}
 		
-		else if (muPgene==T){
+		else if (mu_type == "perGene"){
 
 			for (ent in 1:dim(rem_entries)[1]){
 				rem_gene=rem_entries[ent,1]
@@ -889,7 +889,7 @@ calcPredictionKfoldCV_dyn_disc_dream8 <-function(b,n,K,adja,baseline,obs,delta,r
 				}
 			}
 		}
-		else if (muPgk==T){
+		else if (mu_type == "perGeneExp"){
 		
 			for (ent in 1:dim(rem_entries)[1]){
 				rem_gene=rem_entries[ent,1]
@@ -960,7 +960,7 @@ calcPredictionKfoldCV_dyn_disc_dream8 <-function(b,n,K,adja,baseline,obs,delta,r
 			}
 		}
 		
-		else if (muPgt==T){
+		else if (mu_type == "perGeneTime"){
 		
 			for (ent in 1:dim(rem_entries)[1]){
 				rem_gene=rem_entries[ent,1]
@@ -1030,7 +1030,7 @@ calcPredictionKfoldCV_dyn_disc_dream8 <-function(b,n,K,adja,baseline,obs,delta,r
 			}
 		}
 		
-		else if (muPgkt==T){
+		else if (mu_type == "perGeneExpTime"){
 		
 			for (ent in 1:dim(rem_entries)[1]){
 				rem_gene=rem_entries[ent,1]

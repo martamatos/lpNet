@@ -2,13 +2,13 @@
 # LOOCV prediction for LP original
 #
 
-calcPredictionLOOCV_LP <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_kd,active_mu,active_sd,inactive_mu,inactive_sd,muPgene=FALSE,muPgk=FALSE)
+calcPredictionLOOCV_LP <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_kd,active_mu,active_sd,inactive_mu,inactive_sd,mu_type)
 {
 	kds <- matrix(b,nrow=n,ncol=K)
 	
 	sil_gene_ids <- which(kds[,rem_kd]==0)
 	
-	if (muPgene==F & muPgk==F){
+	if (mu_type == "single"){
 		# if removed observation is from a gene which has been silenced: prediction comes from inactivation
 		if(rem_gene %in% sil_gene_ids){
 			predict <- rnorm(1,inactive_mu,inactive_sd)
@@ -34,7 +34,7 @@ calcPredictionLOOCV_LP <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_kd
 			}
 		}
 	}
-	else if (muPgene==T){
+	else if (mu_type == "perGene"){
 		if(rem_gene %in% sil_gene_ids){
 			predict <- rnorm(1,inactive_mu[rem_gene],inactive_sd[rem_gene])
 		}
@@ -59,7 +59,7 @@ calcPredictionLOOCV_LP <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_kd
 			}
 		}
 	}
-	else if (muPgk==T){
+	else if (mu_type == "perGeneExp"){
 		if(rem_gene %in% sil_gene_ids){
 			predict <- rnorm(1,inactive_mu[rem_gene,rem_kd],inactive_sd[rem_gene,rem_kd])
 		}
@@ -90,7 +90,7 @@ calcPredictionLOOCV_LP <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_kd
 #
 # LOOCV prediction for no discretized model
 #
-calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k, rem_t,active_mu,active_sd,inactive_mu,inactive_sd,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE)
+calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k, rem_t,active_mu,active_sd,inactive_mu,inactive_sd,mu_type)
 {
 	# activation matrix is the same regardless of time point
 	act_mat <- calcActivation_dyn(adja,b,n,K)
@@ -99,7 +99,7 @@ calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k
 	res=vecMatch(c(rem_gene, rem_k), inact_entries)
 	
 	
-	if (muPgene==F & muPgk==F & muPgt==F & muPgkt==F){
+	if (mu_type == "single"){
 		# if the removed entry is an inactive node due to some knockdown, then predict as inactive
 		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu,inactive_sd)
@@ -157,7 +157,7 @@ calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k
 		}
 	}
 	# if there is an in/active_mu/sd per gene
-	else if(muPgene==T){
+	else if(mu_type == "perGene"){
 		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu[rem_gene],inactive_sd[rem_gene])
 		}
@@ -214,7 +214,7 @@ calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k
 		}
 	}
 	# if there is an in/active_mu/sd and delta per gene per knockdown exp
-	else if(muPgk==T){
+	else if(mu_type == "perGeneExp"){
 		# if the removed entry is an inactive node due to some knockdown, then predict as inactive
 		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu[rem_gene,rem_k],inactive_sd[rem_gene,rem_k])
@@ -272,7 +272,7 @@ calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k
 		}
 	}
 	# if there is an in/active_mu/sd and delta per gene per time point
-	else if(muPgt==T){
+	else if (mu_type == "perGeneTime"){
 		# if the removed entry is an inactive node due to some knockdown, then predict as inactive
 		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu[rem_gene,rem_t],inactive_sd[rem_gene,rem_t])
@@ -330,7 +330,7 @@ calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k
 		}
 	}
 	# if there is an in/active_mu/sd and delta per gene per knockdown exp per time point
-	else if (muPgkt == T){
+	else if (mu_type == "perGeneExpTime"){
 		# if the removed entry is an inactive node due to some knockdown, then predict as inactive
 		if (any(res)==TRUE){
 			predict <- rnorm(1,inactive_mu[rem_gene, rem_k,rem_t],inactive_sd[rem_gene, rem_k,rem_t])
@@ -396,7 +396,7 @@ calcPredictionLOOCV_dyn <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k
 # LOOCV prediction for half discretized model
 #
 	
-calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k, rem_t,active_mu,active_sd,inactive_mu,inactive_sd,muPgene=FALSE,muPgk=FALSE,muPgt=FALSE,muPgkt=FALSE)
+calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, rem_k, rem_t,active_mu,active_sd,inactive_mu,inactive_sd,mu_type)
 {
 	# activation matrix is the same regardless of time point
 	act_mat <- calcActivation_dyn(adja,b,n,K)
@@ -405,7 +405,7 @@ calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, 
 	res=vecMatch(c(rem_gene, rem_k), inact_entries)
 	
 	
-	if (muPgene==F & muPgk==F & muPgt==F & muPgkt==F){
+	if (mu_type == "single"){
 		# if the removed entry is an inactive node due to some knockdown, then predict as inactive
 		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu,inactive_sd)
@@ -465,7 +465,7 @@ calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, 
 		}
 	}
 	# if there is an in/active_mu/sd per gene
-	else if(muPgene==T){
+	else if(mu_type == "perGene"){
 		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu[rem_gene],inactive_sd[rem_gene])
 		}
@@ -524,7 +524,7 @@ calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, 
 		}
 	}
 	# if there is an in/active_mu/sd and delta per gene per knockdown exp
-	else if(muPgk==T){
+	else if(mu_type == "perGeneExp"){
 		# if the removed entry is an inactive node due to some knockdown, then predict as inactive
 		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu[rem_gene,rem_k],inactive_sd[rem_gene,rem_k])
@@ -584,7 +584,7 @@ calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, 
 		}
 	}
 	# if there is an in/active_mu/sd and delta per gene per time point
-	else if(muPgt==T){
+	else if(mu_type == "perGeneTime"){
 		# if the removed entry is an inactive node due to some knockdown, then predict as inactive
 		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu[rem_gene,rem_t],inactive_sd[rem_gene,rem_t])
@@ -644,7 +644,7 @@ calcPredictionLOOCV_dyn_disc <-function(b,n,K,adja,baseline,obs,delta,rem_gene, 
 		}
 	}
 	# if there is an in/active_mu/sd and delta per gene per knockdown exp per time point
-	else if (muPgkt == T){
+	else if (mu_type == "perGeneExpTime"){
 		# if the removed entry is an inactive node due to some knockdown, then predict as inactive
 		if (res==TRUE){
 			predict <- rnorm(1,inactive_mu[rem_gene, rem_k,rem_t],inactive_sd[rem_gene, rem_k,rem_t])
