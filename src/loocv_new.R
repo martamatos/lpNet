@@ -56,7 +56,7 @@ function(function_,predFunction,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,an
 
 
 
-loocv_dyn <-function(function_,predFunction,getAdja_function, getBaseline_function,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,mu_type,delta_type)
+loocv_dyn <-function(function_,predFunction,getAdja_function, getBaseline_function, realTime_function=NULL,kfold=NULL,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,mu_type,delta_type)
 {
 
   # elements to leave out (each element at least once)

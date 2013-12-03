@@ -85,7 +85,7 @@ function(function_,predFunction,kfold,times,obs,n,b,K,delta,lambda,annot,annot_n
 
 
 
-kfoldCV_dyn <-function(function_,predFunction,getAdja_function, getBaseline_function,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,mu_type,delta_type)
+kfoldCV_dyn <-function(function_,predFunction,getAdja_function, getBaseline_function, realTime_function=NULL,kfold,times,obs,n,b,K,delta,lambda,annot,annot_node,T_,active_mu,active_sd,inactive_mu,inactive_sd,prior=NULL,sourceNode=NULL,sinkNode=NULL,allint=FALSE,allpos=FALSE,mu_type,delta_type)
 {
 
   # define k-fold groups: stratified
