@@ -42,11 +42,12 @@ dream_insilico_realTime = function(obs_modified)
 	
 	delta_temp = obs_modified[,which(colnames(obs_modified[,,1])=="None"),1]
 	delta = vector()
-
+	print(delta_temp)
+	print(nStim)
 	for (stim in 1:nStim){
 		delta = cbind(delta, matrix(rep(delta_temp[,stim], 4), nrow=nAntibodies, ncol=nInhib))
 	}
-
+	stop("A")
 	delta = round(delta, digits=2)
 
 	for (i in 1:nAntibodies){
