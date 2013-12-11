@@ -65,8 +65,8 @@ bootstrap_dyn_repeat <-function(function_,predFunction=NULL,getAdja_function, ge
   {
 
 		#bootstrap replicates
-		obs_temp = array(NA, c(n,K,T_,100))
-		for (i in 1:100)
+		obs_temp = array(NA, c(n,K,T_,50))
+		for (i in 1:50)
 		{
 			obs_modified_temp = apply(obs, c(1,2,3), boot_mean)
 			obs_temp[,,,i] = obs_modified_temp
